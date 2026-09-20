@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/constants/colors.dart';
 
 class StaffDeskScreen extends StatelessWidget {
@@ -24,7 +25,9 @@ class StaffDeskScreen extends StatelessWidget {
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 TextButton.icon(
-                  onPressed: () {},
+                  onPressed: () {
+                    context.push('/staff/calendar');
+                  },
                   icon: const Icon(Icons.calendar_month),
                   label: const Text('View Calendar'),
                 ),

@@ -1,9 +1,8 @@
-import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
-
-import '../screens/splash/splash_screen.dart';
+import 'package:go_router/go_router.dart';
 import '../screens/auth/auth_screen.dart';
 import '../screens/auth/onboarding_screen.dart';
+import '../screens/splash/splash_screen.dart';
 import '../screens/patient/patient_dashboard.dart';
 import '../screens/patient/patient_services_screen.dart';
 import '../screens/patient/patient_vault_screen.dart';
@@ -21,6 +20,8 @@ import '../screens/patient/book_appointment_screen.dart';
 import '../screens/patient/cost_estimator_screen.dart';
 import '../screens/patient/ai_symptom_checker_screen.dart';
 import '../screens/staff/add_admin_screen.dart';
+import '../screens/staff/broadcast_announcement_screen.dart';
+import '../screens/staff/calendar_schedule_screen.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 final GlobalKey<NavigatorState> _patientShellNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'patientShell');
@@ -65,6 +66,14 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/profile/add_admin',
       builder: (context, state) => const AddAdminScreen(),
+    ),
+    GoRoute(
+      path: '/staff/broadcast',
+      builder: (context, state) => const BroadcastAnnouncementScreen(),
+    ),
+    GoRoute(
+      path: '/staff/calendar',
+      builder: (context, state) => const CalendarScheduleScreen(),
     ),
     GoRoute(
       path: '/patient/book',

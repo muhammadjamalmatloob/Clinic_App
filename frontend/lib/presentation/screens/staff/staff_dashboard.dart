@@ -48,9 +48,7 @@ class StaffDashboard extends ConsumerWidget {
                     subtitle: const Text('Push notification to all waiting patients'),
                     trailing: const Icon(Icons.send, color: AppColors.primaryPlum),
                     onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Broadcast Dialog opened')),
-                      );
+                      context.push('/staff/broadcast');
                     },
                   ),
                 ),
