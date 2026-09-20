@@ -12,8 +12,14 @@ import '../screens/staff/staff_dashboard.dart';
 import '../screens/staff/staff_desk_screen.dart';
 import '../screens/staff/staff_analytics_screen.dart';
 import '../screens/staff/staff_shell.dart';
-import '../screens/common/coming_soon_screen.dart';
 import '../screens/common/profile_settings_screen.dart';
+import '../screens/common/manage_dependents_screen.dart';
+import '../screens/common/vaccination_tracker_screen.dart';
+import '../screens/common/health_blog_screen.dart';
+import '../screens/common/post_visit_feedback_screen.dart';
+import '../screens/patient/book_appointment_screen.dart';
+import '../screens/patient/cost_estimator_screen.dart';
+import '../screens/patient/ai_symptom_checker_screen.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 final GlobalKey<NavigatorState> _patientShellNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'patientShell');
@@ -38,6 +44,34 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/profile',
       builder: (context, state) => const ProfileSettingsScreen(),
+    ),
+    GoRoute(
+      path: '/profile/dependents',
+      builder: (context, state) => const ManageDependentsScreen(),
+    ),
+    GoRoute(
+      path: '/profile/vaccination',
+      builder: (context, state) => const VaccinationTrackerScreen(),
+    ),
+    GoRoute(
+      path: '/profile/health_blog',
+      builder: (context, state) => const HealthBlogScreen(),
+    ),
+    GoRoute(
+      path: '/profile/feedback',
+      builder: (context, state) => const PostVisitFeedbackScreen(),
+    ),
+    GoRoute(
+      path: '/patient/book',
+      builder: (context, state) => const BookAppointmentScreen(),
+    ),
+    GoRoute(
+      path: '/patient/cost',
+      builder: (context, state) => const CostEstimatorScreen(),
+    ),
+    GoRoute(
+      path: '/patient/ai',
+      builder: (context, state) => const AiSymptomCheckerScreen(),
     ),
     // PATIENT APP ROUTES
     ShellRoute(

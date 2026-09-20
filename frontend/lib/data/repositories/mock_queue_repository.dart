@@ -24,17 +24,22 @@ class MockQueueRepository implements IQueueRepository {
   }
 
   @override
-  Stream<List<TokenEntity>> getQueueStream() => _queueController.stream;
+  Stream<List<TokenEntity>> getQueueStream() async* {
+    yield List.unmodifiable(_tokens);
+    yield* _queueController.stream;
+  }
 
   @override
-  Stream<TokenEntity?> getCurrentServingTokenStream() {
-    return _queueController.stream.map((tokens) {
+  Stream<TokenEntity?> getCurrentServingTokenStream() async* {
+    TokenEntity? getServing(List<TokenEntity> tokens) {
       try {
         return tokens.firstWhere((t) => t.status == TokenStatus.serving);
       } catch (e) {
         return null;
       }
-    });
+    }
+    yield getServing(_tokens);
+    yield* _queueController.stream.map(getServing);
   }
 
   @override

@@ -54,7 +54,9 @@ class PatientServicesScreen extends StatelessWidget {
             
             // Advance Appointment Booking
             ElevatedButton.icon(
-              onPressed: () {},
+              onPressed: () {
+                context.push('/patient/book');
+              },
               icon: const Icon(Icons.calendar_month),
               label: const Text('Book Advance Appointment', style: TextStyle(fontSize: 16)),
               style: ElevatedButton.styleFrom(
@@ -68,7 +70,9 @@ class PatientServicesScreen extends StatelessWidget {
             
             // Procedure Cost Estimator
             OutlinedButton.icon(
-              onPressed: () {},
+              onPressed: () {
+                context.push('/patient/cost');
+              },
               icon: const Icon(Icons.calculate, color: AppColors.primaryPlum),
               label: const Text('Procedure Cost Estimator', style: TextStyle(fontSize: 16, color: AppColors.primaryPlum)),
               style: OutlinedButton.styleFrom(
@@ -82,7 +86,9 @@ class PatientServicesScreen extends StatelessWidget {
 
             // Symptom Checker
             OutlinedButton.icon(
-              onPressed: () {},
+              onPressed: () {
+                context.push('/patient/ai');
+              },
               icon: const Icon(Icons.medical_information, color: AppColors.primaryPink),
               label: const Text('AI Symptom Checker', style: TextStyle(fontSize: 16, color: AppColors.primaryPink)),
               style: OutlinedButton.styleFrom(
