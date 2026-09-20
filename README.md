@@ -75,3 +75,24 @@ By digitizing the queue, the system automatically allots tokens and provides **l
 Currently, the app is running with a Mock Data Repository. Use these credentials to test the two distinct app experiences:
 - **Patient Login:** Email: `user@gmail.com` | Password: `user`
 - **Staff/Admin Login:** Email: `admin@gmail.com` | Password: `admin`
+
+## ⚙️ FastAPI Backend
+
+The backend is located in the `backend` directory. To set it up on Windows PowerShell:
+
+```powershell
+cd backend
+py -3.13 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+Copy-Item .env.example .env
+uvicorn app.main:app --reload
+```
+
+The API will be available at `http://127.0.0.1:8000`. Interactive documentation is available at `http://127.0.0.1:8000/docs`, and the health endpoint is `http://127.0.0.1:8000/api/v1/health`.
+
+Run backend tests with:
+
+```powershell
+pytest
+```
