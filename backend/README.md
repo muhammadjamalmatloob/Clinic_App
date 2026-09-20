@@ -10,7 +10,7 @@ backend/
 │   ├── api/              # Versioned HTTP routers and route handlers
 │   ├── core/             # Settings and cross-cutting application concerns
 │   ├── db/               # Database engine, sessions, and migrations
-│   ├── models/           # Database models
+│   ├── models/           # Frontend-aligned SQLAlchemy database models
 │   ├── repositories/     # Data-access abstractions
 │   ├── schemas/          # Pydantic request and response schemas
 │   ├── services/         # Business logic
@@ -20,6 +20,8 @@ backend/
 ├── pyproject.toml
 └── requirements.txt
 ```
+
+The model layer currently contains only the entities represented by the Flutter application: profiles, daily queues and tokens, dependents, vaccinations, services, appointments, medical records, medications, prescriptions, announcements, and feedback.
 
 ## Run locally
 
