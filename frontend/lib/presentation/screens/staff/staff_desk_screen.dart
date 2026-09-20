@@ -106,6 +106,7 @@ class StaffDeskScreen extends StatelessWidget {
                 ),
               ),
             ),
+            const SizedBox(height: 80), // Padding to prevent overlap with bottom nav bar
           ],
         ),
       ),
