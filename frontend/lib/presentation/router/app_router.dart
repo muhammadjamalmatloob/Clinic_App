@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import '../screens/splash/splash_screen.dart';
 import '../screens/auth/auth_screen.dart';
 import '../screens/patient/patient_dashboard.dart';
+import '../screens/patient/patient_services_screen.dart';
+import '../screens/patient/patient_vault_screen.dart';
 import '../screens/patient/patient_shell.dart';
 import '../screens/staff/staff_dashboard.dart';
 import '../screens/staff/staff_shell.dart';
@@ -36,11 +38,11 @@ final GoRouter appRouter = GoRouter(
         ),
         GoRoute(
           path: '/patient/services',
-          builder: (context, state) => const ComingSoonScreen(title: 'Services & Booking'),
+          builder: (context, state) => const PatientServicesScreen(),
         ),
         GoRoute(
           path: '/patient/vault',
-          builder: (context, state) => const ComingSoonScreen(title: 'Medical Vault'),
+          builder: (context, state) => const PatientVaultScreen(),
         ),
       ],
     ),
