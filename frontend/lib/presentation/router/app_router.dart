@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../screens/splash/splash_screen.dart';
 import '../screens/auth/auth_screen.dart';
+import '../screens/auth/onboarding_screen.dart';
 import '../screens/patient/patient_dashboard.dart';
 import '../screens/patient/patient_services_screen.dart';
 import '../screens/patient/patient_vault_screen.dart';
@@ -25,6 +26,10 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/',
       builder: (context, state) => const SplashScreen(),
+    ),
+    GoRoute(
+      path: '/onboarding',
+      builder: (context, state) => const OnboardingScreen(),
     ),
     GoRoute(
       path: '/auth',

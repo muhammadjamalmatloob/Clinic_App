@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/constants/colors.dart';
+import '../../../domain/entities/user_entity.dart';
 import '../../providers/auth_provider.dart';
 
 class ProfileSettingsScreen extends ConsumerStatefulWidget {
@@ -108,7 +109,6 @@ class _ProfileSettingsScreenState extends ConsumerState<ProfileSettingsScreen> {
               ),
             ),
             const SizedBox(height: 24),
-
             _buildSectionHeader('Support & Feedback'),
             Card(
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -130,6 +130,25 @@ class _ProfileSettingsScreenState extends ConsumerState<ProfileSettingsScreen> {
                 ],
               ),
             ),
+            
+            if (user?.role == UserRole.staff) ...[
+              const SizedBox(height: 24),
+              _buildSectionHeader('Admin Controls'),
+              Card(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                child: ListTile(
+                  leading: const Icon(Icons.admin_panel_settings, color: AppColors.primaryPlum),
+                  title: const Text('Add New Admin'),
+                  subtitle: const Text('Invite a staff member'),
+                  trailing: const Icon(Icons.add_circle, color: AppColors.primaryPlum),
+                  onTap: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Add New Admin dialog opened!')),
+                    );
+                  },
+                ),
+              ),
+            ],
 
             const SizedBox(height: 32),
             OutlinedButton.icon(

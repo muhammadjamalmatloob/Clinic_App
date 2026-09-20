@@ -15,7 +15,7 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
     Future.delayed(const Duration(seconds: 3), () {
       if (mounted) {
-        context.go('/auth');
+        context.go('/onboarding');
       }
     });
   }
@@ -48,6 +48,10 @@ class _SplashScreenState extends State<SplashScreen> {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: AppColors.white,
+                    border: Border.all(
+                      color: AppColors.primaryPink,
+                      width: 4,
+                    ),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withOpacity(0.2),
