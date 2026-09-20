@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/constants/colors.dart';
 
 class PatientVaultScreen extends StatelessWidget {
@@ -13,9 +14,7 @@ class PatientVaultScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.person),
             onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Profile & Settings coming soon!')),
-              );
+              context.push('/profile');
             },
           )
         ],

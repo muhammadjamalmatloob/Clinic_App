@@ -24,9 +24,7 @@ class PatientDashboard extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.person),
             onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Profile & Settings coming soon!')),
-              );
+              context.push('/profile');
             },
           )
         ],

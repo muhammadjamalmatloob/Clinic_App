@@ -23,9 +23,7 @@ class StaffDashboard extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Settings coming soon!')),
-              );
+              context.push('/profile');
             },
           )
         ],

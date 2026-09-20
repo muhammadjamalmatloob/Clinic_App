@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/constants/colors.dart';
 
 class PatientServicesScreen extends StatelessWidget {
@@ -14,9 +15,7 @@ class PatientServicesScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.person),
             onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Profile & Settings coming soon!')),
-              );
+              context.push('/profile');
             },
           )
         ],

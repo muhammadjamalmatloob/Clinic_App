@@ -12,6 +12,7 @@ import '../screens/staff/staff_desk_screen.dart';
 import '../screens/staff/staff_analytics_screen.dart';
 import '../screens/staff/staff_shell.dart';
 import '../screens/common/coming_soon_screen.dart';
+import '../screens/common/profile_settings_screen.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 final GlobalKey<NavigatorState> _patientShellNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'patientShell');
@@ -28,6 +29,10 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/auth',
       builder: (context, state) => const AuthScreen(),
+    ),
+    GoRoute(
+      path: '/profile',
+      builder: (context, state) => const ProfileSettingsScreen(),
     ),
     // PATIENT APP ROUTES
     ShellRoute(
