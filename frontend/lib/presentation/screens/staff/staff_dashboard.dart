@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+
+import '../../widgets/premium_background.dart';
+import '../../widgets/glass_card.dart';
 
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/strings.dart';
@@ -17,31 +21,64 @@ class StaffDashboard extends ConsumerWidget {
     final currentServingAsync = ref.watch(currentServingTokenProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Queue Control'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () {
-              context.push('/profile');
-            },
-          )
-        ],
-      ),
-      body: queueAsync.when(
-        data: (tokens) {
-          final waitingTokens = tokens.where((t) => t.status == TokenStatus.waiting).toList();
+      extendBodyBehindAppBar: true,
+      backgroundColor: AppColors.background,
+      body: PremiumBackground(
+        child: CustomScrollView(
+          slivers: [
+            SliverAppBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+            pinned: true,
+            expandedHeight: 80,
+            collapsedHeight: 60,
+            flexibleSpace: FlexibleSpaceBar(
+              titlePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              title: Row(
+                children: [
+                  CircleAvatar(
+                    backgroundColor: AppColors.primaryPlum.withValues(alpha: 0.1),
+                    child: const Icon(Icons.admin_panel_settings, color: AppColors.primaryPlum, size: 20),
+                  ),
+                  const SizedBox(width: 12),
+                  const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Clinic Admin',
+                        style: TextStyle(color: AppColors.textSecondary, fontSize: 10, fontWeight: FontWeight.normal),
+                      ),
+                      Text(
+                        'Control Desk',
+                        style: TextStyle(color: AppColors.primaryPlum, fontSize: 14, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.settings, color: AppColors.textPrimary),
+                onPressed: () => context.push('/profile'),
+              ),
+              const SizedBox(width: 8),
+            ],
+          ),
+          SliverToBoxAdapter(
+            child: queueAsync.when(
+              data: (tokens) {
+                final waitingTokens = tokens.where((t) => t.status == TokenStatus.waiting).toList();
 
-          return Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
+                return Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
                 // Broadcast Announcements
-                Card(
-                  color: AppColors.primaryPeach.withOpacity(0.2),
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                GlassCard(
+                  padding: const EdgeInsets.all(8),
                   child: ListTile(
                     leading: const Icon(Icons.campaign, color: AppColors.primaryPlum),
                     title: const Text('Broadcast Announcement', style: TextStyle(fontWeight: FontWeight.bold)),
@@ -51,7 +88,7 @@ class StaffDashboard extends ConsumerWidget {
                       context.push('/staff/broadcast');
                     },
                   ),
-                ),
+                ).animate().fadeIn().slideX(begin: 0.1),
                 const SizedBox(height: 24),
                 
                 // Control Panel
@@ -98,22 +135,23 @@ class StaffDashboard extends ConsumerWidget {
                 const SizedBox(height: 8),
                 currentServingAsync.when(
                   data: (token) {
-                    if (token == null) return const Text('No patient currently serving.');
-                    return Card(
-                      color: AppColors.primaryPlum,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    if (token == null) return const GlassCard(child: Text('No patient currently serving.', style: TextStyle(color: AppColors.textSecondary)));
+                    return GlassCard(
                       child: ListTile(
-                        title: Text('Token ${token.tokenNumber}', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                        subtitle: Text(token.patientName, style: const TextStyle(color: Colors.white70)),
+                        title: Text('Token ${token.tokenNumber}', style: const TextStyle(color: AppColors.primaryPlum, fontWeight: FontWeight.bold, fontSize: 18)),
+                        subtitle: Text(token.patientName, style: const TextStyle(color: AppColors.textSecondary)),
                         trailing: ElevatedButton(
                           onPressed: () {
                             ref.read(queueRepositoryProvider).completeCurrentPatient();
                           },
-                          style: ElevatedButton.styleFrom(backgroundColor: AppColors.primaryPeach),
-                          child: const Text('Complete', style: TextStyle(color: Colors.black87)),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primaryPlum,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                          child: const Text('Complete', style: TextStyle(color: Colors.white)),
                         ),
                       ),
-                    );
+                    ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.1);
                   },
                   loading: () => const CircularProgressIndicator(),
                   error: (_, __) => const Text('Error loading current token'),
@@ -123,10 +161,11 @@ class StaffDashboard extends ConsumerWidget {
                 // Waiting List
                 const Text('Waiting Queue', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
-                Expanded(
-                  child: waitingTokens.isEmpty
+                  waitingTokens.isEmpty
                       ? const Center(child: Text('No patients waiting'))
                       : ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
                           itemCount: waitingTokens.length,
                           itemBuilder: (context, index) {
                             final token = waitingTokens[index];
@@ -143,13 +182,16 @@ class StaffDashboard extends ConsumerWidget {
                             );
                           },
                         ),
-                ),
               ],
             ),
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (_, __) => const Center(child: Text('Failed to load queue')),
+      ),
+    ),
+  ],
+),
       ),
     );
   }

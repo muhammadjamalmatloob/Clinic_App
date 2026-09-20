@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import '../../../core/constants/colors.dart';
+import '../../widgets/premium_background.dart';
+import '../../widgets/glass_card.dart';
 
 class AiSymptomCheckerScreen extends StatefulWidget {
   const AiSymptomCheckerScreen({super.key});
@@ -27,68 +30,87 @@ class _AiSymptomCheckerScreenState extends State<AiSymptomCheckerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('AI Symptom Checker'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: AppColors.textPrimary),
+        title: const Text(
+          'AI Symptom Checker',
+          style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold),
+        ),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(16.0),
-              itemCount: _messages.length,
-              itemBuilder: (context, index) {
-                final isUser = _messages[index].startsWith('You:');
-                return Align(
-                  alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
-                  child: Container(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: isUser ? AppColors.primaryPink : Colors.grey.shade200,
-                      borderRadius: BorderRadius.circular(16).copyWith(
-                        bottomRight: isUser ? const Radius.circular(0) : const Radius.circular(16),
-                        bottomLeft: !isUser ? const Radius.circular(0) : const Radius.circular(16),
+      body: PremiumBackground(
+        child: SafeArea(
+          child: Column(
+            children: [
+              Expanded(
+                child: ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                  itemCount: _messages.length,
+                  itemBuilder: (context, index) {
+                    final isUser = _messages[index].startsWith('You:');
+                    final msgText = _messages[index].replaceAll('You: ', '').replaceAll('AI: ', '');
+                    
+                    return Align(
+                      alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+                      child: Container(
+                        margin: const EdgeInsets.only(bottom: 16),
+                        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
+                        child: GlassCard(
+                          borderRadius: 20,
+                          padding: const EdgeInsets.all(16),
+                          child: Text(
+                            msgText,
+                            style: TextStyle(
+                              color: isUser ? AppColors.primaryPlum : AppColors.textPrimary,
+                              fontWeight: isUser ? FontWeight.w600 : FontWeight.normal,
+                              fontSize: 15,
+                            ),
+                          ),
+                        ).animate().fadeIn(duration: 300.ms).slideY(begin: 0.1),
                       ),
-                    ),
-                    child: Text(
-                      _messages[index].replaceAll('You: ', '').replaceAll('AI: ', ''),
-                      style: TextStyle(color: isUser ? Colors.white : Colors.black87),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4, offset: const Offset(0, -2))],
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _controller,
-                    decoration: InputDecoration(
-                      hintText: 'Type your symptoms...',
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(24)),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                    ),
+                    );
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: GlassCard(
+                  borderRadius: 30,
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  child: Row(
+                    children: [
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: TextField(
+                          controller: _controller,
+                          decoration: const InputDecoration(
+                            hintText: 'Type your symptoms...',
+                            border: InputBorder.none,
+                            hintStyle: TextStyle(color: AppColors.textSecondary),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        decoration: const BoxDecoration(
+                          color: AppColors.primaryPlum,
+                          shape: BoxShape.circle,
+                        ),
+                        child: IconButton(
+                          icon: const Icon(Icons.send_rounded, color: Colors.white, size: 20),
+                          onPressed: _sendMessage,
+                        ),
+                      ).animate().scale(delay: 200.ms),
+                    ],
                   ),
                 ),
-                const SizedBox(width: 8),
-                CircleAvatar(
-                  backgroundColor: AppColors.primaryPlum,
-                  child: IconButton(
-                    icon: const Icon(Icons.send, color: Colors.white),
-                    onPressed: _sendMessage,
-                  ),
-                )
-              ],
-            ),
-          )
-        ],
+              ),
+              const SizedBox(height: 10), // Padding for bottom nav
+            ],
+          ),
+        ),
       ),
     );
   }

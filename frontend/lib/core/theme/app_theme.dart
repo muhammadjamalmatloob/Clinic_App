@@ -10,8 +10,7 @@ class AppTheme {
       colorScheme: const ColorScheme.light(
         primary: AppColors.primaryPlum,
         secondary: AppColors.primaryPink,
-        background: AppColors.background,
-        surface: AppColors.white,
+        surface: AppColors.background,
       ),
       textTheme: GoogleFonts.poppinsTextTheme().copyWith(
         displayLarge: GoogleFonts.poppins(color: AppColors.textPrimary, fontWeight: FontWeight.bold),

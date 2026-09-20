@@ -12,20 +12,41 @@ class PatientShell extends StatelessWidget {
     int currentIndex = _calculateSelectedIndex(context);
 
     return Scaffold(
+      backgroundColor: AppColors.background,
       body: child,
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: currentIndex,
-        onTap: (int idx) => _onItemTapped(idx, context),
-        selectedItemColor: AppColors.primaryPlum,
-        unselectedItemColor: AppColors.textSecondary,
-        backgroundColor: AppColors.white,
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.queue), label: 'Live Queue'),
-          BottomNavigationBarItem(icon: Icon(Icons.medical_services), label: 'Services'),
-          BottomNavigationBarItem(icon: Icon(Icons.smart_toy), label: 'AI Bot'),
-          BottomNavigationBarItem(icon: Icon(Icons.folder_shared), label: 'Vault'),
-        ],
+      extendBody: true,
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.primaryPlum.withValues(alpha: 0.12),
+              blurRadius: 25,
+              offset: const Offset(0, -5), // Shadow upwards
+            ),
+          ],
+        ),
+        child: SafeArea(
+          child: BottomNavigationBar(
+            currentIndex: currentIndex,
+            onTap: (int idx) => _onItemTapped(idx, context),
+            selectedItemColor: AppColors.primaryPlum,
+            unselectedItemColor: AppColors.textSecondary,
+            backgroundColor: Colors.white,
+            type: BottomNavigationBarType.fixed,
+            showSelectedLabels: true, // Bringing labels back so it doesn't squish icons on web
+            showUnselectedLabels: true,
+            selectedFontSize: 12,
+            unselectedFontSize: 11,
+            elevation: 0,
+            items: const [
+              BottomNavigationBarItem(icon: Icon(Icons.queue), label: 'Queue'),
+              BottomNavigationBarItem(icon: Icon(Icons.medical_services), label: 'Services'),
+              BottomNavigationBarItem(icon: Icon(Icons.smart_toy), label: 'AI'),
+              BottomNavigationBarItem(icon: Icon(Icons.folder_shared), label: 'Vault'),
+            ],
+          ),
+        ),
       ),
     );
   }

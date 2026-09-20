@@ -11,18 +11,39 @@ class StaffShell extends StatelessWidget {
     int currentIndex = _calculateSelectedIndex(context);
 
     return Scaffold(
+      backgroundColor: AppColors.background,
       body: child,
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: currentIndex,
-        onTap: (int idx) => _onItemTapped(idx, context),
-        selectedItemColor: AppColors.primaryPlum,
-        unselectedItemColor: AppColors.textSecondary,
-        backgroundColor: AppColors.white,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.control_camera), label: 'Control'),
-          BottomNavigationBarItem(icon: Icon(Icons.desk), label: 'Doctor Desk'),
-          BottomNavigationBarItem(icon: Icon(Icons.analytics), label: 'Analytics'),
-        ],
+      extendBody: true,
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.primaryPlum.withValues(alpha: 0.12),
+              blurRadius: 25,
+              offset: const Offset(0, -5), // Shadow upwards
+            ),
+          ],
+        ),
+        child: SafeArea(
+          child: BottomNavigationBar(
+            currentIndex: currentIndex,
+            onTap: (int idx) => _onItemTapped(idx, context),
+            selectedItemColor: AppColors.primaryPlum,
+            unselectedItemColor: AppColors.textSecondary,
+            backgroundColor: Colors.white,
+            showSelectedLabels: true,
+            showUnselectedLabels: true,
+            selectedFontSize: 12,
+            unselectedFontSize: 11,
+            elevation: 0,
+            items: const [
+              BottomNavigationBarItem(icon: Icon(Icons.control_camera), label: 'Control'),
+              BottomNavigationBarItem(icon: Icon(Icons.desk), label: 'Doctor Desk'),
+              BottomNavigationBarItem(icon: Icon(Icons.analytics), label: 'Analytics'),
+            ],
+          ),
+        ),
       ),
     );
   }
