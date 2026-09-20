@@ -20,6 +20,7 @@ import '../screens/common/post_visit_feedback_screen.dart';
 import '../screens/patient/book_appointment_screen.dart';
 import '../screens/patient/cost_estimator_screen.dart';
 import '../screens/patient/ai_symptom_checker_screen.dart';
+import '../screens/staff/add_admin_screen.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 final GlobalKey<NavigatorState> _patientShellNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'patientShell');
@@ -62,16 +63,16 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) => const PostVisitFeedbackScreen(),
     ),
     GoRoute(
+      path: '/profile/add_admin',
+      builder: (context, state) => const AddAdminScreen(),
+    ),
+    GoRoute(
       path: '/patient/book',
       builder: (context, state) => const BookAppointmentScreen(),
     ),
     GoRoute(
       path: '/patient/cost',
       builder: (context, state) => const CostEstimatorScreen(),
-    ),
-    GoRoute(
-      path: '/patient/ai',
-      builder: (context, state) => const AiSymptomCheckerScreen(),
     ),
     // PATIENT APP ROUTES
     ShellRoute(
@@ -85,6 +86,10 @@ final GoRouter appRouter = GoRouter(
         GoRoute(
           path: '/patient/services',
           builder: (context, state) => const PatientServicesScreen(),
+        ),
+        GoRoute(
+          path: '/patient/ai',
+          builder: (context, state) => const AiSymptomCheckerScreen(),
         ),
         GoRoute(
           path: '/patient/vault',

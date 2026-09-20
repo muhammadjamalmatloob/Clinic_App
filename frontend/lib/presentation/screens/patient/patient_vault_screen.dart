@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/constants/colors.dart';
+import '../../../core/utils/pdf_generator.dart';
 
 class PatientVaultScreen extends StatelessWidget {
   const PatientVaultScreen({super.key});
@@ -123,10 +124,11 @@ class PatientVaultScreen extends StatelessWidget {
         subtitle: Text(date),
         trailing: IconButton(
           icon: const Icon(Icons.picture_as_pdf, color: AppColors.primaryPlum),
-          onPressed: () {
+          onPressed: () async {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Generating PDF for $title...')),
+              SnackBar(content: Text('Preparing PDF for $title...')),
             );
+            await PdfGenerator.generateAndPrintMedicalRecord(title, date, 'Patient User');
           },
         ),
       ),

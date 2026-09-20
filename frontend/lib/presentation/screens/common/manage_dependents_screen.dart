@@ -1,8 +1,82 @@
 import 'package:flutter/material.dart';
 import '../../../core/constants/colors.dart';
 
-class ManageDependentsScreen extends StatelessWidget {
+class ManageDependentsScreen extends StatefulWidget {
   const ManageDependentsScreen({super.key});
+
+  @override
+  State<ManageDependentsScreen> createState() => _ManageDependentsScreenState();
+}
+
+class _ManageDependentsScreenState extends State<ManageDependentsScreen> {
+  void _showAddDependentForm(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+            left: 16,
+            right: 16,
+            top: 24,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Text('Add New Dependent', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.primaryPlum)),
+              const SizedBox(height: 16),
+              TextField(
+                decoration: InputDecoration(
+                  labelText: 'Full Name',
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<String>(
+                decoration: InputDecoration(
+                  labelText: 'Relationship',
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                items: const [
+                  DropdownMenuItem(value: 'Son', child: Text('Son')),
+                  DropdownMenuItem(value: 'Daughter', child: Text('Daughter')),
+                  DropdownMenuItem(value: 'Spouse', child: Text('Spouse')),
+                  DropdownMenuItem(value: 'Other', child: Text('Other')),
+                ],
+                onChanged: (val) {},
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  labelText: 'Age (Years)',
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Dependent Added Successfully!')));
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primaryPlum,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                child: const Text('Save Dependent'),
+              ),
+              const SizedBox(height: 24),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +104,7 @@ class ManageDependentsScreen extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           ElevatedButton.icon(
-            onPressed: () {},
+            onPressed: () => _showAddDependentForm(context),
             icon: const Icon(Icons.add),
             label: const Text('Add Dependent'),
             style: ElevatedButton.styleFrom(

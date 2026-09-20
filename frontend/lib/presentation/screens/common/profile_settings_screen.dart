@@ -130,88 +130,90 @@ class _ProfileSettingsScreenState extends ConsumerState<ProfileSettingsScreen> {
               ),
             ),
             const SizedBox(height: 24),
-
-            // Settings Sections
-            _buildSectionHeader(t('Family Profiles')),
-            Card(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              child: Column(
-                children: [
-                  ListTile(
-                    leading: const Icon(Icons.child_care, color: AppColors.primaryPlum),
-                    title: Text(t('Manage Dependents')),
-                    trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                    onTap: () {
-                      context.push('/profile/dependents');
-                    },
-                  ),
-                  const Divider(height: 1),
-                  ListTile(
-                    leading: const Icon(Icons.vaccines, color: AppColors.primaryPlum),
-                    title: Text(t('Vaccination Tracker (Kids)')),
-                    trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                    onTap: () {
-                      context.push('/profile/vaccination');
-                    },
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            _buildSectionHeader(t('App Preferences')),
-            Card(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              child: Column(
-                children: [
-                  ListTile(
-                    leading: const Icon(Icons.language, color: AppColors.primaryPlum),
-                    title: Text(t('Language (English / Urdu)')),
-                    trailing: Switch(
-                      value: _isUrdu,
-                      onChanged: (val) => setState(() => _isUrdu = val),
-                      activeColor: AppColors.primaryPlum,
+            
+            if (user?.role != UserRole.staff) ...[
+              // Settings Sections
+              _buildSectionHeader(t('Family Profiles')),
+              Card(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                child: Column(
+                  children: [
+                    ListTile(
+                      leading: const Icon(Icons.child_care, color: AppColors.primaryPlum),
+                      title: Text(t('Manage Dependents')),
+                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                      onTap: () {
+                        context.push('/profile/dependents');
+                      },
                     ),
-                  ),
-                  const Divider(height: 1),
-                  ListTile(
-                    leading: const Icon(Icons.notifications, color: AppColors.primaryPlum),
-                    title: Text(t('Push Notifications')),
-                    trailing: Switch(
-                      value: _notificationsEnabled,
-                      onChanged: (val) => setState(() => _notificationsEnabled = val),
-                      activeColor: AppColors.primaryPlum,
+                    const Divider(height: 1),
+                    ListTile(
+                      leading: const Icon(Icons.vaccines, color: AppColors.primaryPlum),
+                      title: Text(t('Vaccination Tracker (Kids)')),
+                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                      onTap: () {
+                        context.push('/profile/vaccination');
+                      },
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: 24),
-            _buildSectionHeader(t('Support & Feedback')),
-            Card(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              child: Column(
-                children: [
-                  ListTile(
-                    leading: const Icon(Icons.health_and_safety, color: AppColors.primaryPlum),
-                    title: Text(t('Health & Wellness Blog')),
-                    trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                    onTap: () {
-                      context.push('/profile/health_blog');
-                    },
-                  ),
-                  const Divider(height: 1),
-                  ListTile(
-                    leading: const Icon(Icons.feedback, color: AppColors.primaryPlum),
-                    title: Text(t('Post-Visit Feedback')),
-                    trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                    onTap: () {
-                      context.push('/profile/feedback');
-                    },
-                  ),
-                ],
+              const SizedBox(height: 24),
+
+              _buildSectionHeader(t('App Preferences')),
+              Card(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                child: Column(
+                  children: [
+                    ListTile(
+                      leading: const Icon(Icons.language, color: AppColors.primaryPlum),
+                      title: Text(t('Language (English / Urdu)')),
+                      trailing: Switch(
+                        value: _isUrdu,
+                        onChanged: (val) => setState(() => _isUrdu = val),
+                        activeColor: AppColors.primaryPlum,
+                      ),
+                    ),
+                    const Divider(height: 1),
+                    ListTile(
+                      leading: const Icon(Icons.notifications, color: AppColors.primaryPlum),
+                      title: Text(t('Push Notifications')),
+                      trailing: Switch(
+                        value: _notificationsEnabled,
+                        onChanged: (val) => setState(() => _notificationsEnabled = val),
+                        activeColor: AppColors.primaryPlum,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
+              const SizedBox(height: 24),
+              _buildSectionHeader(t('Support & Feedback')),
+              Card(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                child: Column(
+                  children: [
+                    ListTile(
+                      leading: const Icon(Icons.health_and_safety, color: AppColors.primaryPlum),
+                      title: Text(t('Health & Wellness Blog')),
+                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                      onTap: () {
+                        context.push('/profile/health_blog');
+                      },
+                    ),
+                    const Divider(height: 1),
+                    ListTile(
+                      leading: const Icon(Icons.feedback, color: AppColors.primaryPlum),
+                      title: Text(t('Post-Visit Feedback')),
+                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                      onTap: () {
+                        context.push('/profile/feedback');
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ],
             
             if (user?.role == UserRole.staff) ...[
               const SizedBox(height: 24),
@@ -224,9 +226,7 @@ class _ProfileSettingsScreenState extends ConsumerState<ProfileSettingsScreen> {
                   subtitle: Text(t('Invite a staff member')),
                   trailing: const Icon(Icons.add_circle, color: AppColors.primaryPlum),
                   onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(t('Add New Admin dialog opened!'))),
-                    );
+                    context.push('/profile/add_admin');
                   },
                 ),
               ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/constants/colors.dart';
+import '../../../core/utils/pdf_generator.dart';
 
 class StaffAnalyticsScreen extends StatelessWidget {
   const StaffAnalyticsScreen({super.key});
@@ -42,10 +43,11 @@ class StaffAnalyticsScreen extends StatelessWidget {
             
             // PDF Generation
             OutlinedButton.icon(
-              onPressed: () {
+              onPressed: () async {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Generating Daily Summary PDF...')),
+                  const SnackBar(content: Text('Preparing Daily Summary PDF...')),
                 );
+                await PdfGenerator.generateAndPrintDailyReport();
               },
               icon: const Icon(Icons.picture_as_pdf, color: AppColors.primaryPlum),
               label: const Text('Export Daily Report (PDF)', style: TextStyle(color: AppColors.primaryPlum)),
