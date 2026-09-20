@@ -11,6 +11,8 @@ class Settings(BaseSettings):
     cors_origins: list[str] = ["http://localhost:3000", "http://localhost:8080"]
     database_url: str = ""
     direct_url: str = ""
+    supabase_url: str = ""
+    supabase_anon_key: str = ""
 
     model_config = SettingsConfigDict(
         env_file=".env",

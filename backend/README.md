@@ -36,7 +36,19 @@ Copy-Item .env.example .env
 uvicorn app.main:app --reload
 ```
 
-Set `DATABASE_URL` to the Supabase transaction-mode pooler URL for application traffic and `DIRECT_URL` to the session-mode URL for migrations. URL-encode special characters in the database password.
+Set `DATABASE_URL` and `DIRECT_URL` to a verified Supabase session-mode URL while developing. URL-encode special characters in the database password. The transaction-mode pooler can be enabled later after its credentials are verified.
+
+Create the SQLAlchemy tables in Supabase once with:
+
+```powershell
+python -m scripts.create_schema
+```
+
+Check the connection and required tables with:
+
+```powershell
+python -m scripts.check_schema
+```
 
 Open `http://127.0.0.1:8000/docs` for interactive API documentation.
 

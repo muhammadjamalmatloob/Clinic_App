@@ -12,7 +12,9 @@ def _async_database_url(database_url: str) -> str:
 	url = make_url(database_url)
 	query = dict(url.query)
 	query.pop("pgbouncer", None)
-	return str(url.set(drivername="postgresql+asyncpg", query=query))
+	return url.set(drivername="postgresql+asyncpg", query=query).render_as_string(
+		hide_password=False
+	)
 
 
 if not settings.database_url:
