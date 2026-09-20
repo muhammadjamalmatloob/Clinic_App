@@ -18,14 +18,6 @@ class PatientVaultScreen extends StatelessWidget {
             elevation: 0,
             pinned: true,
             title: const Text('Medical Vault', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold)),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.person, color: AppColors.textPrimary),
-                onPressed: () {
-                  context.push('/profile');
-                },
-              )
-            ],
           ),
           SliverPadding(
             padding: const EdgeInsets.all(16.0),
