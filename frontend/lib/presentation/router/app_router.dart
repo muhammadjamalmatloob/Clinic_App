@@ -8,6 +8,8 @@ import '../screens/patient/patient_services_screen.dart';
 import '../screens/patient/patient_vault_screen.dart';
 import '../screens/patient/patient_shell.dart';
 import '../screens/staff/staff_dashboard.dart';
+import '../screens/staff/staff_desk_screen.dart';
+import '../screens/staff/staff_analytics_screen.dart';
 import '../screens/staff/staff_shell.dart';
 import '../screens/common/coming_soon_screen.dart';
 
@@ -57,11 +59,11 @@ final GoRouter appRouter = GoRouter(
         ),
         GoRoute(
           path: '/staff/desk',
-          builder: (context, state) => const ComingSoonScreen(title: 'Doctor Desk'),
+          builder: (context, state) => const StaffDeskScreen(),
         ),
         GoRoute(
           path: '/staff/analytics',
-          builder: (context, state) => const ComingSoonScreen(title: 'Pharmacy & Analytics'),
+          builder: (context, state) => const StaffAnalyticsScreen(),
         ),
       ],
     ),
