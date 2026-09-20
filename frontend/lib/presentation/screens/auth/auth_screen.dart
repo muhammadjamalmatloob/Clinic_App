@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/strings.dart';
+import '../../../domain/entities/user_entity.dart';
 import '../../providers/auth_provider.dart';
 
 class AuthScreen extends ConsumerStatefulWidget {

@@ -109,7 +109,7 @@ class StaffDashboard extends ConsumerWidget {
                         subtitle: Text(token.patientName, style: const TextStyle(color: Colors.white70)),
                         trailing: ElevatedButton(
                           onPressed: () {
-                            ref.read(queueRepositoryProvider).completeToken(token.id);
+                            ref.read(queueRepositoryProvider).completeCurrentPatient();
                           },
                           style: ElevatedButton.styleFrom(backgroundColor: AppColors.primaryPeach),
                           child: const Text('Complete', style: TextStyle(color: Colors.black87)),
