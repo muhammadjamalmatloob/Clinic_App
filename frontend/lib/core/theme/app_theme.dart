@@ -5,11 +5,11 @@ import '../constants/colors.dart';
 class AppTheme {
   static ThemeData get lightTheme {
     return ThemeData(
-      primaryColor: AppColors.primaryPink,
+      primaryColor: AppColors.primaryPlum,
       scaffoldBackgroundColor: AppColors.background,
       colorScheme: const ColorScheme.light(
-        primary: AppColors.primaryPink,
-        secondary: AppColors.primaryPurple,
+        primary: AppColors.primaryPlum,
+        secondary: AppColors.primaryPink,
         background: AppColors.background,
         surface: AppColors.white,
       ),
@@ -19,14 +19,14 @@ class AppTheme {
         bodyMedium: GoogleFonts.poppins(color: AppColors.textSecondary),
       ),
       appBarTheme: const AppBarTheme(
-        backgroundColor: AppColors.primaryPink,
+        backgroundColor: AppColors.primaryPlum,
         foregroundColor: AppColors.white,
         elevation: 0,
         centerTitle: true,
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primaryPink,
+          backgroundColor: AppColors.primaryPlum,
           foregroundColor: AppColors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),

@@ -7,22 +7,26 @@ class AuthNotifier extends Notifier<UserEntity?> {
     return null;
   }
 
-  void loginAsPatient(String name, String phone) {
-    state = UserEntity(
-      id: 'patient_123',
-      name: name,
-      phoneNumber: phone,
-      role: UserRole.patient,
-    );
-  }
-
-  void loginAsStaff() {
-    state = UserEntity(
-      id: 'staff_1',
-      name: 'Admin',
-      phoneNumber: '0000000000',
-      role: UserRole.staff,
-    );
+  Future<bool> login(String email, String password) async {
+    // Hardcoded credentials for mock auth
+    if (email == 'user@gmail.com' && password == 'user') {
+      state = UserEntity(
+        id: 'patient_1',
+        name: 'Patient User',
+        phoneNumber: '1234567890',
+        role: UserRole.patient,
+      );
+      return true;
+    } else if (email == 'admin@gmail.com' && password == 'admin') {
+      state = UserEntity(
+        id: 'admin_1',
+        name: 'Clinic Admin',
+        phoneNumber: '0000000000',
+        role: UserRole.staff,
+      );
+      return true;
+    }
+    return false;
   }
 
   void logout() {

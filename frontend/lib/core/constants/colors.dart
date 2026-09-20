@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  // Primary brand colors (to be refined based on logo exact hex)
-  static const Color primaryPink = Color(0xFFE91E63);
-  static const Color primaryPurple = Color(0xFF9C27B0);
+  // Brand colors matched to website
+  static const Color primaryPlum = Color(0xFF6A2E59); // Deep plum/purple from website
+  static const Color primaryPink = Color(0xFFF55B77); // Pink part of gradient
+  static const Color primaryPeach = Color(0xFFFCA56E); // Peach/Orange part of gradient
   
   static const Color white = Colors.white;
   static const Color background = Color(0xFFF8F9FA); // Off-white for background
@@ -12,4 +13,11 @@ class AppColors {
   static const Color success = Color(0xFF4CAF50);
   static const Color warning = Color(0xFFFFC107);
   static const Color error = Color(0xFFF44336);
+
+  // Reusable Gradient
+  static const LinearGradient primaryGradient = LinearGradient(
+    colors: [primaryPink, primaryPeach],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
 }
