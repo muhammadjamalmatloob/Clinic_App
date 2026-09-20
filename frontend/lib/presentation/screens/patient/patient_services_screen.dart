@@ -14,14 +14,6 @@ class PatientServicesScreen extends StatelessWidget {
         backgroundColor: AppColors.background,
         elevation: 0,
         title: const Text('Services & Booking', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold)),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.person, color: AppColors.textPrimary),
-            onPressed: () {
-              context.push('/profile');
-            },
-          )
-        ],
       ),
       body: SafeArea(
         child: Padding(
@@ -39,20 +31,17 @@ class PatientServicesScreen extends StatelessWidget {
               ).animate().fadeIn().slideX(begin: -0.1),
               const SizedBox(height: 16),
 
-              // Services Grid
+              // Services List
               Expanded(
                 flex: 5,
-                child: GridView.count(
-                  crossAxisCount: 2,
-                  physics: const NeverScrollableScrollPhysics(),
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
-                  childAspectRatio: 1.1, // Adjusted to fit better without scrolling
+                child: ListView(
+                  physics: const BouncingScrollPhysics(),
+                  clipBehavior: Clip.none,
                   children: [
-                    _buildServiceCard(context, 'General Health', 'Available today', Icons.favorite, const Color(0xFFFFF1F2), const Color(0xFFE11D48)).animate().fadeIn(delay: 100.ms).slideY(begin: 0.1),
-                    _buildServiceCard(context, "Women's Care", 'Dr. Rukhsana', Icons.pregnant_woman, const Color(0xFFF5F3FF), const Color(0xFF7C3AED)).animate().fadeIn(delay: 200.ms).slideY(begin: 0.1),
-                    _buildServiceCard(context, 'Child Care', 'Pediatrics', Icons.child_care, const Color(0xFFFFFBEB), const Color(0xFFD97706)).animate().fadeIn(delay: 300.ms).slideY(begin: 0.1),
-                    _buildServiceCard(context, 'Ultrasound', 'Radiology', Icons.monitor_heart, const Color(0xFFF0FDF4), const Color(0xFF16A34A)).animate().fadeIn(delay: 400.ms).slideY(begin: 0.1),
+                    Padding(padding: const EdgeInsets.only(bottom: 12), child: _buildServiceCard(context, 'General Health', 'Available today', Icons.favorite, const Color(0xFFFFF1F2), const Color(0xFFE11D48))).animate().fadeIn(delay: 100.ms).slideY(begin: 0.1),
+                    Padding(padding: const EdgeInsets.only(bottom: 12), child: _buildServiceCard(context, "Women's Care", 'Dr. Rukhsana', Icons.pregnant_woman, const Color(0xFFF5F3FF), const Color(0xFF7C3AED))).animate().fadeIn(delay: 200.ms).slideY(begin: 0.1),
+                    Padding(padding: const EdgeInsets.only(bottom: 12), child: _buildServiceCard(context, 'Child Care', 'Pediatrics', Icons.child_care, const Color(0xFFFFFBEB), const Color(0xFFD97706))).animate().fadeIn(delay: 300.ms).slideY(begin: 0.1),
+                    Padding(padding: const EdgeInsets.only(bottom: 12), child: _buildServiceCard(context, 'Ultrasound', 'Radiology', Icons.monitor_heart, const Color(0xFFF0FDF4), const Color(0xFF16A34A))).animate().fadeIn(delay: 400.ms).slideY(begin: 0.1),
                   ],
                 ),
               ),
@@ -134,9 +123,7 @@ class PatientServicesScreen extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           child: Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            child: Row(
               children: [
                 Container(
                   padding: const EdgeInsets.all(12),
@@ -146,34 +133,32 @@ class PatientServicesScreen extends StatelessWidget {
                   ),
                   child: Icon(iconData, size: 28, color: iconColor),
                 ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            subtitle,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: AppColors.textPrimary,
                         ),
-                        Icon(Icons.arrow_forward_ios, size: 12, color: iconColor),
-                      ],
-                    ),
-                  ],
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        subtitle,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
+                Icon(Icons.arrow_forward_ios, size: 16, color: iconColor),
               ],
             ),
           ),
