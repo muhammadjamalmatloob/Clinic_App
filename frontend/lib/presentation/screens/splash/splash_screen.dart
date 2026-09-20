@@ -61,14 +61,11 @@ class _SplashScreenState extends State<SplashScreen> {
                     ],
                   ),
                   child: ClipOval(
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Image.asset(
-                        'lib/assets/clinic.png',
-                        fit: BoxFit.contain,
-                        errorBuilder: (context, error, stackTrace) => 
-                          const Icon(Icons.local_hospital, size: 80, color: AppColors.primaryPlum),
-                      ),
+                    child: Image.asset(
+                      'lib/assets/clinic.png',
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => 
+                        const Icon(Icons.local_hospital, size: 80, color: AppColors.primaryPlum),
                     ),
                   ),
                 ),

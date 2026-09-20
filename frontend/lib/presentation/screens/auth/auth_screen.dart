@@ -133,14 +133,11 @@ class _AuthScreenState extends ConsumerState<AuthScreen> with SingleTickerProvid
                       ],
                     ),
                     child: ClipOval(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Image.asset(
-                          'assets/images/clinic.png',
-                          fit: BoxFit.contain,
-                          errorBuilder: (context, error, stackTrace) => 
-                            const Icon(Icons.local_hospital, size: 60, color: AppColors.primaryPlum),
-                        ),
+                      child: Image.asset(
+                        'lib/assets/clinic.png',
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => 
+                          const Icon(Icons.local_hospital, size: 60, color: AppColors.primaryPlum),
                       ),
                     ),
                   ),
