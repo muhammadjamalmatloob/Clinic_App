@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../../core/constants/colors.dart';
+import '../../widgets/premium_background.dart';
+import '../../widgets/glass_card.dart';
+import '../../widgets/app_header.dart';
+import 'package:go_router/go_router.dart';
 
 class CostEstimatorScreen extends StatefulWidget {
   const CostEstimatorScreen({super.key});
@@ -22,13 +26,25 @@ class _CostEstimatorScreenState extends State<CostEstimatorScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Procedure Cost Estimator'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      extendBodyBehindAppBar: true,
+      backgroundColor: AppColors.background,
+      body: PremiumBackground(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            AppHeader(
+              title: 'Procedure Cost Estimator',
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back_ios, color: Colors.white, size: 20),
+                onPressed: () => context.pop(),
+              ),
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16.0),
+                child: GlassCard(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const Text(
               'Get a transparent estimate for your procedures.',
@@ -38,7 +54,9 @@ class _CostEstimatorScreenState extends State<CostEstimatorScreen> {
             DropdownButtonFormField<String>(
               decoration: InputDecoration(
                 labelText: 'Select Procedure',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                filled: true,
+                fillColor: Colors.white.withValues(alpha: 0.5),
               ),
               items: _costs.keys.map((String key) {
                 return DropdownMenuItem<String>(
@@ -54,12 +72,9 @@ class _CostEstimatorScreenState extends State<CostEstimatorScreen> {
             ),
             const SizedBox(height: 48),
             if (_selectedProcedure != null) ...[
-              Card(
-                elevation: 4,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                child: Padding(
-                  padding: const EdgeInsets.all(32.0),
-                  child: Column(
+              GlassCard(
+                padding: const EdgeInsets.all(32.0),
+                child: Column(
                     children: [
                       Text(
                         _selectedProcedure!,
@@ -83,8 +98,12 @@ class _CostEstimatorScreenState extends State<CostEstimatorScreen> {
                     ],
                   ),
                 ),
-              ),
             ]
+          ],
+        ),
+      ),
+              ),
+            ),
           ],
         ),
       ),

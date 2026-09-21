@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../../core/constants/colors.dart';
+import '../../widgets/premium_background.dart';
+import '../../widgets/glass_card.dart';
+import '../../widgets/app_header.dart';
+import 'package:go_router/go_router.dart';
 
 class PostVisitFeedbackScreen extends StatelessWidget {
   const PostVisitFeedbackScreen({super.key});
@@ -7,13 +11,25 @@ class PostVisitFeedbackScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Post-Visit Feedback'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      extendBodyBehindAppBar: true,
+      backgroundColor: AppColors.background,
+      body: PremiumBackground(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            AppHeader(
+              title: 'Post-Visit Feedback',
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back_ios, color: Colors.white, size: 20),
+                onPressed: () => context.pop(),
+              ),
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16.0),
+                child: GlassCard(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const Text(
               'How was your last visit?',
@@ -36,7 +52,10 @@ class PostVisitFeedbackScreen extends StatelessWidget {
               maxLines: 5,
               decoration: InputDecoration(
                 hintText: 'Share your experience with Dr. Rukhsana...',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                hintStyle: const TextStyle(color: AppColors.textSecondary),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                filled: true,
+                fillColor: Colors.white.withValues(alpha: 0.5),
               ),
             ),
             const SizedBox(height: 24),
@@ -53,6 +72,11 @@ class PostVisitFeedbackScreen extends StatelessWidget {
               ),
               child: const Text('Submit Feedback', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             )
+          ],
+        ),
+      ),
+              ),
+            ),
           ],
         ),
       ),

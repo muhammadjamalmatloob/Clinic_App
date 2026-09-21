@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../../core/constants/colors.dart';
+import '../../widgets/premium_background.dart';
+import '../../widgets/glass_card.dart';
+import '../../widgets/app_header.dart';
 
 class PatientServicesScreen extends StatelessWidget {
   const PatientServicesScreen({super.key});
@@ -9,18 +12,21 @@ class PatientServicesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       backgroundColor: AppColors.background,
-      appBar: AppBar(
-        backgroundColor: AppColors.background,
-        elevation: 0,
-        title: const Text('Services & Booking', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold)),
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
+      body: PremiumBackground(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const AppHeader(
+              title: 'Services & Booking',
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
               // Header
               Text(
                 "We're Providing\nBest Services",
@@ -31,21 +37,6 @@ class PatientServicesScreen extends StatelessWidget {
               ).animate().fadeIn().slideX(begin: -0.1),
               const SizedBox(height: 16),
 
-              // Services List
-              Expanded(
-                flex: 5,
-                child: ListView(
-                  physics: const BouncingScrollPhysics(),
-                  clipBehavior: Clip.none,
-                  children: [
-                    Padding(padding: const EdgeInsets.only(bottom: 12), child: _buildServiceCard(context, 'General Health', 'Available today', Icons.favorite, const Color(0xFFFFF1F2), const Color(0xFFE11D48))).animate().fadeIn(delay: 100.ms).slideY(begin: 0.1),
-                    Padding(padding: const EdgeInsets.only(bottom: 12), child: _buildServiceCard(context, "Women's Care", 'Dr. Rukhsana', Icons.pregnant_woman, const Color(0xFFF5F3FF), const Color(0xFF7C3AED))).animate().fadeIn(delay: 200.ms).slideY(begin: 0.1),
-                    Padding(padding: const EdgeInsets.only(bottom: 12), child: _buildServiceCard(context, 'Child Care', 'Pediatrics', Icons.child_care, const Color(0xFFFFFBEB), const Color(0xFFD97706))).animate().fadeIn(delay: 300.ms).slideY(begin: 0.1),
-                    Padding(padding: const EdgeInsets.only(bottom: 12), child: _buildServiceCard(context, 'Ultrasound', 'Radiology', Icons.monitor_heart, const Color(0xFFF0FDF4), const Color(0xFF16A34A))).animate().fadeIn(delay: 400.ms).slideY(begin: 0.1),
-                  ],
-                ),
-              ),
-              
               // Action Buttons
               Expanded(
                 flex: 4,
@@ -64,7 +55,7 @@ class PatientServicesScreen extends StatelessWidget {
                         backgroundColor: AppColors.primaryPlum,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                       ),
-                    ).animate().fadeIn(delay: 500.ms).scale(),
+                    ).animate().fadeIn(delay: 100.ms).scale(),
                     
                     OutlinedButton.icon(
                       onPressed: () {
@@ -77,7 +68,7 @@ class PatientServicesScreen extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                       ),
-                    ).animate().fadeIn(delay: 600.ms),
+                    ).animate().fadeIn(delay: 200.ms),
                     
                     OutlinedButton.icon(
                       onPressed: () {
@@ -90,32 +81,40 @@ class PatientServicesScreen extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                       ),
-                    ).animate().fadeIn(delay: 700.ms),
+                    ).animate().fadeIn(delay: 300.ms),
                   ],
                 ),
               ),
-              const SizedBox(height: 50), // padding for floating bottom nav
+              const SizedBox(height: 16),
+              
+              // Services List
+              Expanded(
+                flex: 5,
+                child: ListView(
+                  physics: const BouncingScrollPhysics(),
+                  clipBehavior: Clip.none,
+                  children: [
+                    Padding(padding: const EdgeInsets.only(bottom: 12), child: _buildServiceCard(context, 'General Health', 'Available today', Icons.favorite, const Color(0xFFFFF1F2), const Color(0xFFE11D48))).animate().fadeIn(delay: 400.ms).slideY(begin: 0.1),
+                    Padding(padding: const EdgeInsets.only(bottom: 12), child: _buildServiceCard(context, "Women's Care", 'Dr. Rukhsana', Icons.pregnant_woman, const Color(0xFFF5F3FF), const Color(0xFF7C3AED))).animate().fadeIn(delay: 500.ms).slideY(begin: 0.1),
+                    Padding(padding: const EdgeInsets.only(bottom: 12), child: _buildServiceCard(context, 'Child Care', 'Pediatrics', Icons.child_care, const Color(0xFFFFFBEB), const Color(0xFFD97706))).animate().fadeIn(delay: 600.ms).slideY(begin: 0.1),
+                    Padding(padding: const EdgeInsets.only(bottom: 12), child: _buildServiceCard(context, 'Ultrasound', 'Radiology', Icons.monitor_heart, const Color(0xFFF0FDF4), const Color(0xFF16A34A))).animate().fadeIn(delay: 700.ms).slideY(begin: 0.1),
+                    const SizedBox(height: 120), // padding for floating bottom nav inside list
+                  ],
+                ),
+              ),
             ],
           ),
         ),
       ),
-    );
-  }
+    ],
+  ),
+),
+);
+}
 
   Widget _buildServiceCard(BuildContext context, String title, String subtitle, IconData iconData, Color bgColor, Color iconColor) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.grey.shade100, width: 1.5),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primaryPlum.withValues(alpha: 0.04),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          )
-        ],
-      ),
+    return GlassCard(
+      padding: EdgeInsets.zero,
       child: Material(
         color: Colors.transparent,
         child: InkWell(

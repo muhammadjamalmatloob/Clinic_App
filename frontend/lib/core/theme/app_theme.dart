@@ -12,10 +12,10 @@ class AppTheme {
         secondary: AppColors.primaryPink,
         surface: AppColors.background,
       ),
-      textTheme: GoogleFonts.poppinsTextTheme().copyWith(
-        displayLarge: GoogleFonts.poppins(color: AppColors.textPrimary, fontWeight: FontWeight.bold),
-        titleLarge: GoogleFonts.poppins(color: AppColors.textPrimary, fontWeight: FontWeight.w600),
-        bodyMedium: GoogleFonts.poppins(color: AppColors.textSecondary),
+      textTheme: GoogleFonts.outfitTextTheme().copyWith(
+        displayLarge: GoogleFonts.outfit(color: AppColors.textPrimary, fontWeight: FontWeight.bold),
+        titleLarge: GoogleFonts.outfit(color: AppColors.textPrimary, fontWeight: FontWeight.w600),
+        bodyMedium: GoogleFonts.outfit(color: AppColors.textSecondary),
       ),
       appBarTheme: const AppBarTheme(
         backgroundColor: AppColors.primaryPlum,
