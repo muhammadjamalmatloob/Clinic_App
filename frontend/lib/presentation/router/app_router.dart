@@ -15,6 +15,7 @@ import '../screens/staff/staff_desk_screen.dart';
 import '../screens/staff/staff_analytics_screen.dart';
 import '../screens/staff/staff_shell.dart';
 import '../screens/common/profile_settings_screen.dart';
+import '../screens/common/notifications_screen.dart';
 import '../screens/common/manage_dependents_screen.dart';
 import '../screens/common/vaccination_tracker_screen.dart';
 import '../screens/common/health_blog_screen.dart';
@@ -71,6 +72,10 @@ final routerProvider = Provider<GoRouter>((ref) {
     GoRoute(
       path: '/profile',
       builder: (context, state) => const ProfileSettingsScreen(),
+    ),
+    GoRoute(
+      path: '/notifications',
+      builder: (context, state) => const NotificationsScreen(),
     ),
     GoRoute(
       path: '/profile/dependents',

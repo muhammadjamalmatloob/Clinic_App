@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/constants/colors.dart';
+import '../../widgets/floating_bottom_nav.dart';
 
 class PatientShell extends StatelessWidget {
   final Widget child;
@@ -13,41 +14,21 @@ class PatientShell extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: child,
-      extendBody: true,
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.primaryPlum.withValues(alpha: 0.12),
-              blurRadius: 25,
-              offset: const Offset(0, -5), // Shadow upwards
+      body: Stack(
+        children: [
+          child,
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: FloatingBottomNav(
+              currentIndex: currentIndex,
+              onTap: (int idx) => _onItemTapped(idx, context),
             ),
-          ],
-        ),
-        child: SafeArea(
-          child: BottomNavigationBar(
-            currentIndex: currentIndex,
-            onTap: (int idx) => _onItemTapped(idx, context),
-            selectedItemColor: AppColors.primaryPlum,
-            unselectedItemColor: AppColors.textSecondary,
-            backgroundColor: Colors.white,
-            type: BottomNavigationBarType.fixed,
-            showSelectedLabels: true, // Bringing labels back so it doesn't squish icons on web
-            showUnselectedLabels: true,
-            selectedFontSize: 12,
-            unselectedFontSize: 11,
-            elevation: 0,
-            items: const [
-              BottomNavigationBarItem(icon: Icon(Icons.queue), label: 'Queue'),
-              BottomNavigationBarItem(icon: Icon(Icons.medical_services), label: 'Services'),
-              BottomNavigationBarItem(icon: Icon(Icons.smart_toy), label: 'AI'),
-              BottomNavigationBarItem(icon: Icon(Icons.folder_shared), label: 'Vault'),
-            ],
           ),
-        ),
+        ],
       ),
+      extendBody: true,
     );
   }
 

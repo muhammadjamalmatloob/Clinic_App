@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../../core/constants/colors.dart';
 import '../../widgets/premium_background.dart';
 import '../../widgets/glass_card.dart';
+import '../../widgets/app_header.dart';
 
 class AiSymptomCheckerScreen extends StatefulWidget {
   const AiSymptomCheckerScreen({super.key});
@@ -13,9 +15,17 @@ class AiSymptomCheckerScreen extends StatefulWidget {
 
 class _AiSymptomCheckerScreenState extends State<AiSymptomCheckerScreen> {
   final TextEditingController _controller = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
   final List<String> _messages = [
     'Hello! I am the Clinic AI Assistant. Please describe your symptoms and I will help guide you.'
   ];
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   void _sendMessage() {
     if (_controller.text.trim().isEmpty) return;
@@ -25,27 +35,33 @@ class _AiSymptomCheckerScreenState extends State<AiSymptomCheckerScreen> {
       _messages.add('AI: Based on your symptoms, we recommend booking a General Consultation. Please remember this is not medical advice.');
       _controller.clear();
     });
+    
+    // Auto-scroll to the bottom
+    Future.delayed(const Duration(milliseconds: 100), () {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: AppColors.textPrimary),
-        title: const Text(
-          'AI Symptom Checker',
-          style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold),
-        ),
-      ),
+      backgroundColor: AppColors.background,
       body: PremiumBackground(
-        child: SafeArea(
-          child: Column(
-            children: [
+        child: Column(
+          children: [
+            const AppHeader(
+              title: 'AI Symptom Checker',
+            ),
               Expanded(
                 child: ListView.builder(
+                  controller: _scrollController,
                   padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                   itemCount: _messages.length,
                   itemBuilder: (context, index) {
@@ -75,7 +91,7 @@ class _AiSymptomCheckerScreenState extends State<AiSymptomCheckerScreen> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 16.0, bottom: 120.0),
                 child: GlassCard(
                   borderRadius: 30,
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -107,11 +123,9 @@ class _AiSymptomCheckerScreenState extends State<AiSymptomCheckerScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: 10), // Padding for bottom nav
             ],
           ),
         ),
-      ),
-    );
+      );
   }
 }
