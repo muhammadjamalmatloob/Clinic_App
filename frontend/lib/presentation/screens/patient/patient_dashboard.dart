@@ -6,6 +6,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../widgets/premium_background.dart';
 import '../../widgets/glass_card.dart';
+import '../../widgets/app_header.dart';
 
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/strings.dart';
@@ -31,50 +32,29 @@ class PatientDashboard extends ConsumerWidget {
           child: CustomScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             slivers: [
-              SliverAppBar(
-                backgroundColor: Colors.transparent,
-                elevation: 0,
-              pinned: true,
-              expandedHeight: 80,
-              collapsedHeight: 60,
-              flexibleSpace: FlexibleSpaceBar(
-                titlePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                title: Row(
-                  children: [
-                    CircleAvatar(
-                      backgroundColor: AppColors.primaryPlum.withValues(alpha: 0.1),
-                      child: const Icon(Icons.person, color: AppColors.primaryPlum, size: 20),
-                    ),
-                    const SizedBox(width: 12),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Text(
-                          'Good morning,',
-                          style: TextStyle(color: AppColors.textSecondary, fontSize: 10, fontWeight: FontWeight.normal),
-                        ),
-                        Text(
-                          user?.name ?? 'Patient',
-                          style: const TextStyle(color: AppColors.primaryPlum, fontSize: 14, fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-                  ],
+              SliverToBoxAdapter(
+                child: AppHeader(
+                  title: user?.name ?? 'Patient',
+                  subtitle: 'Good morning,',
+                  leading: CircleAvatar(
+                    backgroundColor: Colors.white.withValues(alpha: 0.2),
+                    child: const Icon(Icons.person, color: Colors.white, size: 20),
+                  ),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.notifications_none, color: Colors.white),
+                        onPressed: () => context.push('/notifications'),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.settings, color: Colors.white),
+                        onPressed: () => context.push('/profile'),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.notifications_none, color: AppColors.textPrimary),
-                  onPressed: () {},
-                ),
-                IconButton(
-                  icon: const Icon(Icons.settings, color: AppColors.textPrimary),
-                  onPressed: () => context.push('/profile'),
-                ),
-                const SizedBox(width: 8),
-              ],
-            ),
             SliverPadding(
               padding: const EdgeInsets.all(16.0),
               sliver: SliverList(
@@ -237,19 +217,120 @@ class PatientDashboard extends ConsumerWidget {
               ),
               
               const SizedBox(height: 32),
+              
+              // Quick Actions
+              const Text('Quick Actions', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Coming Soon')));
+                      },
+                      child: const GlassCard(
+                        padding: EdgeInsets.symmetric(vertical: 16),
+                        child: Column(
+                          children: [
+                            Icon(Icons.calendar_month, color: AppColors.primaryPink, size: 28),
+                            SizedBox(height: 8),
+                            Text('Book Now', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12)),
+                          ],
+                        ),
+                      ),
+                    ).animate().fadeIn(delay: 300.ms).slideY(begin: 0.1),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Coming Soon')));
+                      },
+                      child: const GlassCard(
+                        padding: EdgeInsets.symmetric(vertical: 16),
+                        child: Column(
+                          children: [
+                            Icon(Icons.video_call, color: AppColors.primaryPlum, size: 28),
+                            SizedBox(height: 8),
+                            Text('Telehealth', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12)),
+                          ],
+                        ),
+                      ),
+                    ).animate().fadeIn(delay: 400.ms).slideY(begin: 0.1),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        context.go('/patient/ai');
+                      },
+                      child: const GlassCard(
+                        padding: EdgeInsets.symmetric(vertical: 16),
+                        child: Column(
+                          children: [
+                            Icon(Icons.smart_toy, color: Colors.blueAccent, size: 28),
+                            SizedBox(height: 8),
+                            Text('Ask AI', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12)),
+                          ],
+                        ),
+                      ),
+                    ).animate().fadeIn(delay: 500.ms).slideY(begin: 0.1),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 32),
+
+              // Health Tip Banner
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [AppColors.primaryPlum.withValues(alpha: 0.8), AppColors.primaryPink.withValues(alpha: 0.8)],
+                  ),
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(color: AppColors.primaryPlum.withValues(alpha: 0.3), blurRadius: 15, offset: const Offset(0, 5)),
+                  ],
+                ),
+                padding: const EdgeInsets.all(20),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.2),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.water_drop, color: Colors.white, size: 24),
+                    ),
+                    const SizedBox(width: 16),
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Health Tip of the Day', style: TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w500)),
+                          SizedBox(height: 4),
+                          Text('Stay hydrated! Aim for 8 glasses of water today.', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ).animate().fadeIn(delay: 600.ms),
+              const SizedBox(height: 32),
+
               // Emergency SOS Button
               OutlinedButton.icon(
                 onPressed: () {},
-                icon: const Icon(Icons.emergency, color: AppColors.primaryPink),
-                label: const Text('EMERGENCY SOS', style: TextStyle(fontSize: 16, color: AppColors.primaryPink, fontWeight: FontWeight.bold)),
+                icon: const Icon(Icons.emergency, color: AppColors.error),
+                label: const Text('EMERGENCY SOS', style: TextStyle(fontSize: 16, color: AppColors.error, fontWeight: FontWeight.bold)),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  side: const BorderSide(color: AppColors.primaryPink, width: 2),
-                  backgroundColor: AppColors.primaryPink.withValues(alpha: 0.05),
+                  side: const BorderSide(color: AppColors.error, width: 2),
+                  backgroundColor: AppColors.error.withValues(alpha: 0.05),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 ),
-              ).animate().fadeIn(delay: 500.ms).shake(delay: 2.seconds),
-              const SizedBox(height: 80), // For bottom nav
+              ).animate().fadeIn(delay: 700.ms).shake(delay: 2.seconds),
+              const SizedBox(height: 120), // For bottom nav
             ]),
           ),
         ),

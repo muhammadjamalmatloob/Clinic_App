@@ -1,73 +1,99 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/utils/pdf_generator.dart';
+import '../../widgets/premium_background.dart';
+import '../../widgets/glass_card.dart';
+import '../../widgets/app_header.dart';
+import '../../widgets/empty_state_widget.dart';
 
-class PatientVaultScreen extends StatelessWidget {
+class PatientVaultScreen extends StatefulWidget {
   const PatientVaultScreen({super.key});
+
+  @override
+  State<PatientVaultScreen> createState() => _PatientVaultScreenState();
+}
+
+class _PatientVaultScreenState extends State<PatientVaultScreen> {
+  bool _hasRecords = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       backgroundColor: AppColors.background,
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            backgroundColor: AppColors.background,
-            elevation: 0,
-            pinned: true,
-            title: const Text('Medical Vault', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold)),
-          ),
-          SliverPadding(
-            padding: const EdgeInsets.all(16.0),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                // Pill Tracker Section
-                _buildSectionHeader('Medication Tracker', Icons.medication).animate().fadeIn().slideX(begin: -0.1),
-                const SizedBox(height: 16),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: Colors.grey.shade100, width: 1.5),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primaryPlum.withValues(alpha: 0.04),
-                        blurRadius: 15,
-                        offset: const Offset(0, 5),
-                      )
-                    ],
-                  ),
-                  child: Column(
-                    children: [
-                      _buildPillTile('Iron Supplements', '1 Pill • After Breakfast', true),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 24.0),
-                        child: Divider(height: 1),
-                      ),
-                      _buildPillTile('Calcium', '1 Pill • After Dinner', false),
-                    ],
-                  ),
-                ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.1),
-                
-                const SizedBox(height: 32),
-                
-                // Lab Reports & PDFs
-                _buildSectionHeader('Digital Records', Icons.folder_shared).animate().fadeIn(delay: 400.ms).slideX(begin: -0.1),
-                const SizedBox(height: 16),
-                
-                _buildRecordCard(context, 'Blood Test Report', 'Sept 15, 2026', Icons.science).animate().fadeIn(delay: 500.ms).slideY(begin: 0.1),
-                const SizedBox(height: 12),
-                _buildRecordCard(context, 'Ultrasound Scan', 'Aug 22, 2026', Icons.monitor_heart).animate().fadeIn(delay: 600.ms).slideY(begin: 0.1),
-                const SizedBox(height: 12),
-                _buildRecordCard(context, 'General Prescription', 'Aug 10, 2026', Icons.description).animate().fadeIn(delay: 700.ms).slideY(begin: 0.1),
-                
-                const SizedBox(height: 80), // For bottom nav spacing
-              ]),
+      body: PremiumBackground(
+        child: CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(
+              child: AppHeader(
+                title: 'Medical Vault',
+                trailing: IconButton(
+                  icon: const Icon(Icons.refresh, color: Colors.white),
+                  onPressed: () {
+                    HapticFeedback.lightImpact();
+                    setState(() => _hasRecords = !_hasRecords);
+                  },
+                ),
+              ),
             ),
-          ),
-        ],
+            
+            if (!_hasRecords)
+              SliverFillRemaining(
+                hasScrollBody: false,
+                child: EmptyStateWidget(
+                  icon: Icons.folder_open,
+                  title: 'Vault is empty',
+                  message: 'Your medical records, prescriptions, and lab reports will appear here.',
+                  actionLabel: 'Load Demo Records',
+                  onActionPressed: () {
+                    HapticFeedback.lightImpact();
+                    setState(() => _hasRecords = true);
+                  },
+                ),
+              )
+            else
+              SliverPadding(
+                padding: const EdgeInsets.all(16.0),
+                sliver: SliverList(
+                  delegate: SliverChildListDelegate([
+                    // Pill Tracker Section
+                    _buildSectionHeader('Medication Tracker', Icons.medication).animate().fadeIn().slideX(begin: -0.1),
+                    const SizedBox(height: 16),
+                    GlassCard(
+                      padding: EdgeInsets.zero,
+                      child: Column(
+                        children: [
+                          _buildPillTile('Iron Supplements', '1 Pill • After Breakfast', true),
+                          const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 24.0),
+                            child: Divider(height: 1),
+                          ),
+                          _buildPillTile('Calcium', '1 Pill • After Dinner', false),
+                        ],
+                      ),
+                    ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.1),
+                    
+                    const SizedBox(height: 32),
+                    
+                    // Lab Reports & PDFs
+                    _buildSectionHeader('Digital Records', Icons.folder_shared).animate().fadeIn(delay: 400.ms).slideX(begin: -0.1),
+                    const SizedBox(height: 16),
+                    
+                    _buildRecordCard(context, 'Blood Test Report', 'Sept 15, 2026', Icons.science).animate().fadeIn(delay: 500.ms).slideY(begin: 0.1),
+                    const SizedBox(height: 12),
+                    _buildRecordCard(context, 'Ultrasound Scan', 'Aug 22, 2026', Icons.monitor_heart).animate().fadeIn(delay: 600.ms).slideY(begin: 0.1),
+                    const SizedBox(height: 12),
+                    _buildRecordCard(context, 'General Prescription', 'Aug 10, 2026', Icons.description).animate().fadeIn(delay: 700.ms).slideY(begin: 0.1),
+                    
+                    const SizedBox(height: 120), // For bottom nav spacing
+                  ]),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -104,83 +130,52 @@ class PatientVaultScreen extends StatelessWidget {
           width: 48,
           height: 48,
           decoration: BoxDecoration(
-            color: taken ? AppColors.success.withValues(alpha: 0.1) : AppColors.primaryPeach.withValues(alpha: 0.2),
-            borderRadius: BorderRadius.circular(16),
+            color: taken ? AppColors.success.withValues(alpha: 0.1) : Colors.grey.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(
-            taken ? Icons.check_circle : Icons.access_time_filled,
-            color: taken ? AppColors.success : AppColors.primaryPeach,
+            Icons.medication,
+            color: taken ? AppColors.success : Colors.grey,
           ),
         ),
-        title: Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-        subtitle: Text(time, style: const TextStyle(fontSize: 13)),
-        trailing: taken 
-            ? Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: AppColors.success.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: const Text('Taken', style: TextStyle(color: AppColors.success, fontWeight: FontWeight.bold, fontSize: 12)),
-              )
-            : ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primaryPlum,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                  elevation: 0,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                ),
-                child: const Text('Take', style: TextStyle(color: AppColors.white, fontWeight: FontWeight.bold)),
-              ),
+        title: Text(name, style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primaryPlum)),
+        subtitle: Text(time, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+        trailing: Icon(
+          taken ? Icons.check_circle : Icons.circle_outlined,
+          color: taken ? AppColors.success : Colors.grey,
+          size: 28,
+        ),
       ),
     );
   }
 
   Widget _buildRecordCard(BuildContext context, String title, String date, IconData icon) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.grey.shade100, width: 1.5),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primaryPlum.withValues(alpha: 0.04),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          )
-        ],
-      ),
+    return GlassCard(
+      padding: EdgeInsets.zero,
       child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
         leading: Container(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
             color: AppColors.primaryPink.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(16),
+            shape: BoxShape.circle,
           ),
           child: Icon(icon, color: AppColors.primaryPink),
         ),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-        subtitle: Padding(
-          padding: const EdgeInsets.only(top: 4.0),
-          child: Text(date, style: const TextStyle(fontSize: 12)),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primaryPlum)),
+        subtitle: Text(date, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+        trailing: IconButton(
+          icon: const Icon(Icons.download, color: AppColors.primaryPlum),
+          onPressed: () {
+            HapticFeedback.lightImpact();
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Downloading $title...')));
+            PdfGenerator.generateAndPrintMedicalRecord(title, date, 'Aisha Khan');
+          },
         ),
-        trailing: Container(
-          decoration: BoxDecoration(
-            color: AppColors.background,
-            shape: BoxShape.circle,
-          ),
-          child: IconButton(
-            icon: const Icon(Icons.download_rounded, color: AppColors.primaryPlum, size: 20),
-            onPressed: () async {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Preparing PDF for $title...')),
-              );
-              await PdfGenerator.generateAndPrintMedicalRecord(title, date, 'Patient User');
-            },
-          ),
-        ),
+        onTap: () {
+          HapticFeedback.lightImpact();
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Opening $title...')));
+        },
       ),
     );
   }

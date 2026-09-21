@@ -5,6 +5,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../widgets/premium_background.dart';
 import '../../widgets/glass_card.dart';
+import '../../widgets/app_header.dart';
 
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/strings.dart';
@@ -26,46 +27,22 @@ class StaffDashboard extends ConsumerWidget {
       body: PremiumBackground(
         child: CustomScrollView(
           slivers: [
-            SliverAppBar(
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-            pinned: true,
-            expandedHeight: 80,
-            collapsedHeight: 60,
-            flexibleSpace: FlexibleSpaceBar(
-              titlePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              title: Row(
-                children: [
-                  CircleAvatar(
-                    backgroundColor: AppColors.primaryPlum.withValues(alpha: 0.1),
-                    child: const Icon(Icons.admin_panel_settings, color: AppColors.primaryPlum, size: 20),
-                  ),
-                  const SizedBox(width: 12),
-                  const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'Clinic Admin',
-                        style: TextStyle(color: AppColors.textSecondary, fontSize: 10, fontWeight: FontWeight.normal),
-                      ),
-                      Text(
-                        'Control Desk',
-                        style: TextStyle(color: AppColors.primaryPlum, fontSize: 14, fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                ],
+            SliverToBoxAdapter(
+              child: AppHeader(
+                title: 'Control Desk',
+                subtitle: 'Clinic Admin',
+                leading: CircleAvatar(
+                  backgroundColor: Colors.white.withValues(alpha: 0.2),
+                  child: const Icon(Icons.admin_panel_settings, color: Colors.white, size: 20),
+                ),
+                trailing: IconButton(
+                  icon: const Icon(Icons.settings, color: Colors.white),
+                  onPressed: () => context.push('/profile'),
+                ),
+                height: 140,
+                padding: const EdgeInsets.only(left: 20, right: 20, top: 60, bottom: 20),
               ),
             ),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.settings, color: AppColors.textPrimary),
-                onPressed: () => context.push('/profile'),
-              ),
-              const SizedBox(width: 8),
-            ],
-          ),
           SliverToBoxAdapter(
             child: queueAsync.when(
               data: (tokens) {
