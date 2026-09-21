@@ -1,24 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../../core/constants/colors.dart';
 import '../../widgets/premium_background.dart';
 import '../../widgets/glass_card.dart';
 import '../../widgets/app_header.dart';
+import '../../../domain/entities/ai_entity.dart';
+import '../../providers/ai_provider.dart';
 
-class AiSymptomCheckerScreen extends StatefulWidget {
+class AiSymptomCheckerScreen extends ConsumerStatefulWidget {
   const AiSymptomCheckerScreen({super.key});
 
   @override
-  State<AiSymptomCheckerScreen> createState() => _AiSymptomCheckerScreenState();
+  ConsumerState<AiSymptomCheckerScreen> createState() => _AiSymptomCheckerScreenState();
 }
 
-class _AiSymptomCheckerScreenState extends State<AiSymptomCheckerScreen> {
+class _AiSymptomCheckerScreenState extends ConsumerState<AiSymptomCheckerScreen> {
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  final List<String> _messages = [
-    'Hello! I am the Clinic AI Assistant. Please describe your symptoms and I will help guide you.'
+  
+  final List<ChatMessage> _messages = [
+    ChatMessage(
+      role: 'model', 
+      content: 'Hello! I am the Clinic AI Assistant. Please describe your symptoms and I will help guide you.'
+    )
   ];
+  
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -27,16 +36,7 @@ class _AiSymptomCheckerScreenState extends State<AiSymptomCheckerScreen> {
     super.dispose();
   }
 
-  void _sendMessage() {
-    if (_controller.text.trim().isEmpty) return;
-    
-    setState(() {
-      _messages.add('You: ${_controller.text}');
-      _messages.add('AI: Based on your symptoms, we recommend booking a General Consultation. Please remember this is not medical advice.');
-      _controller.clear();
-    });
-    
-    // Auto-scroll to the bottom
+  void _scrollToBottom() {
     Future.delayed(const Duration(milliseconds: 100), () {
       if (_scrollController.hasClients) {
         _scrollController.animateTo(
@@ -46,6 +46,38 @@ class _AiSymptomCheckerScreenState extends State<AiSymptomCheckerScreen> {
         );
       }
     });
+  }
+
+  void _sendMessage() async {
+    final text = _controller.text.trim();
+    if (text.isEmpty) return;
+    
+    setState(() {
+      _messages.add(ChatMessage(role: 'user', content: text));
+      _controller.clear();
+      _isLoading = true;
+    });
+    
+    _scrollToBottom();
+    
+    try {
+      final reply = await ref.read(aiRepositoryProvider).chat(_messages);
+      if (mounted) {
+        setState(() {
+          _messages.add(ChatMessage(role: 'model', content: reply));
+          _isLoading = false;
+        });
+        _scrollToBottom();
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _messages.add(ChatMessage(role: 'model', content: 'I am sorry, but I am unable to connect to my services right now.'));
+          _isLoading = false;
+        });
+        _scrollToBottom();
+      }
+    }
   }
 
   @override
@@ -63,10 +95,20 @@ class _AiSymptomCheckerScreenState extends State<AiSymptomCheckerScreen> {
                 child: ListView.builder(
                   controller: _scrollController,
                   padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                  itemCount: _messages.length,
+                  itemCount: _messages.length + (_isLoading ? 1 : 0),
                   itemBuilder: (context, index) {
-                    final isUser = _messages[index].startsWith('You:');
-                    final msgText = _messages[index].replaceAll('You: ', '').replaceAll('AI: ', '');
+                    if (index == _messages.length && _isLoading) {
+                       return const Align(
+                         alignment: Alignment.centerLeft,
+                         child: Padding(
+                           padding: EdgeInsets.only(bottom: 16, left: 16),
+                           child: CircularProgressIndicator(color: AppColors.primaryPlum),
+                         )
+                       );
+                    }
+                    
+                    final msg = _messages[index];
+                    final isUser = msg.role == 'user';
                     
                     return Align(
                       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
@@ -77,7 +119,7 @@ class _AiSymptomCheckerScreenState extends State<AiSymptomCheckerScreen> {
                           borderRadius: 20,
                           padding: const EdgeInsets.all(16),
                           child: Text(
-                            msgText,
+                            msg.content,
                             style: TextStyle(
                               color: isUser ? AppColors.primaryPlum : AppColors.textPrimary,
                               fontWeight: isUser ? FontWeight.w600 : FontWeight.normal,
@@ -106,6 +148,7 @@ class _AiSymptomCheckerScreenState extends State<AiSymptomCheckerScreen> {
                             border: InputBorder.none,
                             hintStyle: TextStyle(color: AppColors.textSecondary),
                           ),
+                          onSubmitted: (_) => _sendMessage(),
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -115,8 +158,10 @@ class _AiSymptomCheckerScreenState extends State<AiSymptomCheckerScreen> {
                           shape: BoxShape.circle,
                         ),
                         child: IconButton(
-                          icon: const Icon(Icons.send_rounded, color: Colors.white, size: 20),
-                          onPressed: _sendMessage,
+                          icon: _isLoading 
+                            ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                            : const Icon(Icons.send_rounded, color: Colors.white, size: 20),
+                          onPressed: _isLoading ? null : _sendMessage,
                         ),
                       ).animate().scale(delay: 200.ms),
                     ],
@@ -129,3 +174,4 @@ class _AiSymptomCheckerScreenState extends State<AiSymptomCheckerScreen> {
       );
   }
 }
+
