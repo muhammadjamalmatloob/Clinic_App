@@ -70,14 +70,23 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
 
   void _signup() async {
     setState(() => _isLoading = true);
-    await Future.delayed(const Duration(seconds: 1)); // Mock signup
+    final errorMsg = await ref.read(authProvider.notifier).register(
+      _emailController.text.trim(),
+      _passwordController.text.trim(),
+      _nameController.text.trim(),
+      _phoneController.text.trim(),
+    );
     setState(() => _isLoading = false);
     
-    if (mounted) {
+    if (errorMsg == null && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Signup successful! Please login.')),
       );
       setState(() => _isLogin = true);
+    } else if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(errorMsg ?? 'Signup failed')),
+      );
     }
   }
 

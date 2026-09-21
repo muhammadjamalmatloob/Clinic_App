@@ -1,18 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/constants/colors.dart';
+import '../../providers/appointment_provider.dart';
 
-class StaffDeskScreen extends StatelessWidget {
+class StaffDeskScreen extends ConsumerStatefulWidget {
   const StaffDeskScreen({super.key});
 
   @override
+  ConsumerState<StaffDeskScreen> createState() => _StaffDeskScreenState();
+}
+
+class _StaffDeskScreenState extends ConsumerState<StaffDeskScreen> {
+  @override
   Widget build(BuildContext context) {
+    final now = DateTime.now();
+    final dateStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+    final appointmentsAsync = ref.watch(appointmentsProvider(dateStr));
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Doctor's Desk"),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          ref.invalidate(appointmentsProvider(dateStr));
+        },
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -35,23 +51,38 @@ class StaffDeskScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             
-            // Unified view mockup
-            Card(
-              elevation: 4,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              child: ListView(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                children: [
-                  _buildScheduleItem('09:00 AM', 'Fatima Ali', 'Advance Booking', AppColors.primaryPlum),
-                  const Divider(height: 1),
-                  _buildScheduleItem('09:15 AM', 'Ayesha Khan', 'Token #1 (Walk-in)', AppColors.primaryPeach),
-                  const Divider(height: 1),
-                  _buildScheduleItem('09:30 AM', 'Sana Tariq', 'Token #2 (Walk-in)', AppColors.primaryPeach),
-                  const Divider(height: 1),
-                  _buildScheduleItem('09:45 AM', 'Zainab Ahmed', 'Advance Booking', AppColors.primaryPlum),
-                ],
-              ),
+            appointmentsAsync.when(
+              data: (appointments) {
+                if (appointments.isEmpty) {
+                  return const Card(
+                    child: Padding(
+                      padding: EdgeInsets.all(32.0),
+                      child: Center(child: Text("No appointments scheduled for today.")),
+                    ),
+                  );
+                }
+                return Card(
+                  elevation: 4,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  child: ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: appointments.length,
+                    separatorBuilder: (context, index) => const Divider(height: 1),
+                    itemBuilder: (context, index) {
+                      final apt = appointments[index];
+                      return _buildScheduleItem(
+                        apt.appointmentTime,
+                        'Patient ID: ${apt.patientId.substring(0, 8)}',
+                        apt.status.toUpperCase(),
+                        AppColors.primaryPlum,
+                      );
+                    },
+                  ),
+                );
+              },
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (err, _) => Center(child: Text('Failed to load: $err')),
             ),
 
             const SizedBox(height: 32),
@@ -108,6 +139,7 @@ class StaffDeskScreen extends StatelessWidget {
             ),
             const SizedBox(height: 80), // Padding to prevent overlap with bottom nav bar
           ],
+        ),
         ),
       ),
     );
