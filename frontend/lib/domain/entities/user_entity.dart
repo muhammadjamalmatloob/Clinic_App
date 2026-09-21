@@ -12,4 +12,13 @@ class UserEntity {
     required this.phoneNumber,
     this.role = UserRole.patient,
   });
+
+  factory UserEntity.fromJson(Map<String, dynamic> json) {
+    return UserEntity(
+      id: json['id'] as String,
+      name: json['full_name'] as String,
+      phoneNumber: json['phone_number'] as String,
+      role: json['role'] == 'staff' ? UserRole.staff : UserRole.patient,
+    );
+  }
 }

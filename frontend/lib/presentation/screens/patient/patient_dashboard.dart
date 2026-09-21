@@ -116,7 +116,8 @@ class PatientDashboard extends ConsumerWidget {
               queueAsync.when(
                 data: (tokens) {
                   final myToken = tokens.cast<TokenEntity?>().firstWhere(
-                    (t) => t?.patientId == user?.id,
+                    (t) => t?.patientId == user?.id && 
+                           (t?.status == TokenStatus.waiting || t?.status == TokenStatus.serving),
                     orElse: () => null,
                   );
 
