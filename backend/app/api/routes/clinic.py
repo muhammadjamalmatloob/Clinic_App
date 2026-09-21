@@ -96,6 +96,15 @@ async def _validate_queue_subject(
             )
 
 
+@router.get("/profiles", response_model=list[ProfileResponse], tags=["profiles"])
+async def get_profiles(role: str | None = None, session: AsyncSession = Depends(get_session)):
+    stmt = select(Profile)
+    if role:
+        stmt = stmt.where(Profile.role == role)
+    result = await session.execute(stmt)
+    return result.scalars().all()
+
+
 @router.get("/profiles/me", response_model=ProfileResponse, tags=["profiles"])
 async def get_profile(profile_id: UUID, session: AsyncSession = Depends(get_session)) -> Profile:
     return await _get_or_404(session, Profile, profile_id)
@@ -111,6 +120,7 @@ async def update_profile(
     await session.commit()
     await session.refresh(profile)
     return profile
+
 
 
 @router.get("/services", response_model=list[ServiceResponse], tags=["services"])
@@ -462,8 +472,13 @@ async def create_prescription(
     )
     session.add(prescription)
     await session.commit()
-    await session.refresh(prescription)
-    return prescription
+    
+    result = await session.scalar(
+        select(Prescription)
+        .options(selectinload(Prescription.items))
+        .where(Prescription.id == prescription.id)
+    )
+    return result
 
 
 @router.get("/prescriptions/{prescription_id}", response_model=PrescriptionResponse, tags=["prescriptions"])
