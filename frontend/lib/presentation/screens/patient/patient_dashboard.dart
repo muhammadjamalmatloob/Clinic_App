@@ -12,6 +12,7 @@ import '../../../core/constants/colors.dart';
 import '../../../core/constants/strings.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/queue_provider.dart';
+import '../../providers/clinic_provider.dart';
 import '../../../domain/entities/token_entity.dart';
 
 class PatientDashboard extends ConsumerWidget {
@@ -60,6 +61,53 @@ class PatientDashboard extends ConsumerWidget {
               sliver: SliverList(
                 delegate: SliverChildListDelegate([
               
+              // Announcements Banner
+              Consumer(
+                builder: (context, ref, _) {
+                  final announcementsAsync = ref.watch(announcementsProvider('all_patients'));
+                  return announcementsAsync.when(
+                    data: (announcements) {
+                      if (announcements.isEmpty) return const SizedBox.shrink();
+                      return Column(
+                        children: announcements.map((announcement) {
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 16),
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [Colors.orange.shade400, Colors.deepOrange.shade400],
+                              ),
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(color: Colors.orange.withValues(alpha: 0.3), blurRadius: 10, offset: const Offset(0, 4)),
+                              ],
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.campaign, color: Colors.white, size: 28),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Text('CLINIC ANNOUNCEMENT', style: TextStyle(color: Colors.white70, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
+                                      const SizedBox(height: 4),
+                                      Text(announcement.message, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ).animate().fadeIn(duration: 500.ms).slideY(begin: -0.2);
+                        }).toList(),
+                      );
+                    },
+                    loading: () => const SizedBox.shrink(),
+                    error: (_, __) => const SizedBox.shrink(),
+                  );
+                },
+              ),
+
               // Currently Serving Card
               GlassCard(
                 child: Column(
