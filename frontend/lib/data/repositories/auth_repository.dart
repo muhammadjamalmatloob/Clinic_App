@@ -81,10 +81,27 @@ class AuthRepository {
         if (profileResponse.statusCode == 200) {
            return UserEntity.fromJson(profileResponse.data);
         }
+        }
       }
       return null;
     } catch (e) {
       print('Get profile error: $e');
+      return null;
+    }
+  }
+
+  Future<UserEntity?> updateProfile(String profileId, String name, String phone) async {
+    try {
+      final response = await apiClient.dio.patch('/profiles/$profileId', data: {
+        'full_name': name,
+        'phone_number': phone,
+      });
+      if (response.statusCode == 200) {
+        return UserEntity.fromJson(response.data);
+      }
+      return null;
+    } catch (e) {
+      print('Update profile error: $e');
       return null;
     }
   }

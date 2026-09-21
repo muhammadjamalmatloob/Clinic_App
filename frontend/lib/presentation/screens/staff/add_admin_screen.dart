@@ -1,33 +1,59 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/colors.dart';
+import '../../providers/auth_provider.dart';
 
-class AddAdminScreen extends StatefulWidget {
+class AddAdminScreen extends ConsumerStatefulWidget {
   const AddAdminScreen({super.key});
 
   @override
-  State<AddAdminScreen> createState() => _AddAdminScreenState();
+  ConsumerState<AddAdminScreen> createState() => _AddAdminScreenState();
 }
 
-class _AddAdminScreenState extends State<AddAdminScreen> {
+class _AddAdminScreenState extends ConsumerState<AddAdminScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _passwordController = TextEditingController();
+
   bool _isLoading = false;
 
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
       
-      // Mock network delay
-      await Future.delayed(const Duration(seconds: 2));
+      final error = await ref.read(authRepositoryProvider).register(
+        _emailController.text.trim(),
+        _passwordController.text,
+        _nameController.text.trim(),
+        _phoneController.text.trim(),
+      );
       
       setState(() => _isLoading = false);
       
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('New Admin added successfully!')),
-        );
-        Navigator.of(context).pop();
+        if (error == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('New Admin added successfully!')),
+          );
+          Navigator.of(context).pop();
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error: $error')),
+          );
+        }
       }
     }
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _phoneController.dispose();
+    _passwordController.dispose();
+    super.dispose();
   }
 
   @override
@@ -52,13 +78,14 @@ class _AddAdminScreenState extends State<AddAdminScreen> {
               ),
               const SizedBox(height: 8),
               const Text(
-                'This user will have full access to the clinic dashboard and analytics.',
+                'This user will have full access to the clinic dashboard and analytics. Ensure the email contains "admin" or "staff".',
                 textAlign: TextAlign.center,
                 style: TextStyle(color: AppColors.textSecondary),
               ),
               const SizedBox(height: 32),
               
               TextFormField(
+                controller: _nameController,
                 decoration: InputDecoration(
                   labelText: 'Full Name',
                   prefixIcon: const Icon(Icons.person_outline),
@@ -68,6 +95,7 @@ class _AddAdminScreenState extends State<AddAdminScreen> {
               ),
               const SizedBox(height: 16),
               TextFormField(
+                controller: _emailController,
                 decoration: InputDecoration(
                   labelText: 'Email Address',
                   prefixIcon: const Icon(Icons.email_outlined),
@@ -78,6 +106,18 @@ class _AddAdminScreenState extends State<AddAdminScreen> {
               ),
               const SizedBox(height: 16),
               TextFormField(
+                controller: _phoneController,
+                decoration: InputDecoration(
+                  labelText: 'Phone Number',
+                  prefixIcon: const Icon(Icons.phone_outlined),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                keyboardType: TextInputType.phone,
+                validator: (value) => value == null || value.isEmpty ? 'Please enter a phone number' : null,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _passwordController,
                 decoration: InputDecoration(
                   labelText: 'Temporary Password',
                   prefixIcon: const Icon(Icons.lock_outline),

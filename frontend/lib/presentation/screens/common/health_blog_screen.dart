@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/colors.dart';
 import '../../widgets/premium_background.dart';
 import '../../widgets/glass_card.dart';
 import '../../widgets/app_header.dart';
 import 'package:go_router/go_router.dart';
+import '../../providers/article_provider.dart';
+import 'package:intl/intl.dart';
 
-class HealthBlogScreen extends StatelessWidget {
+class HealthBlogScreen extends ConsumerWidget {
   const HealthBlogScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final articlesAsync = ref.watch(articlesProvider);
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       backgroundColor: AppColors.background,
@@ -24,13 +29,23 @@ class HealthBlogScreen extends StatelessWidget {
               ),
             ),
             Expanded(
-              child: ListView(
-                padding: const EdgeInsets.all(16.0),
-                children: [
-          _buildBlogCard('Healthy Eating During Pregnancy', 'Nutrition tips for a healthy journey.', 'Oct 1, 2026'),
-          _buildBlogCard('Postpartum Recovery', 'What to expect and how to take care of yourself.', 'Sep 25, 2026'),
-          _buildBlogCard('Childhood Milestones', 'Tracking your baby\'s first year of development.', 'Sep 10, 2026'),
-                ],
+              child: articlesAsync.when(
+                loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primaryPlum)),
+                error: (error, _) => Center(child: Text('Error: $error')),
+                data: (articles) {
+                  if (articles.isEmpty) {
+                    return const Center(child: Text('No articles available at the moment.'));
+                  }
+                  return ListView.builder(
+                    padding: const EdgeInsets.all(16.0),
+                    itemCount: articles.length,
+                    itemBuilder: (context, index) {
+                      final article = articles[index];
+                      final dateFormatted = DateFormat('MMM d, yyyy').format(article.createdAt);
+                      return _buildBlogCard(article.title, article.summary, dateFormatted);
+                    },
+                  );
+                },
               ),
             ),
           ],
@@ -64,3 +79,4 @@ class HealthBlogScreen extends StatelessWidget {
     );
   }
 }
+
