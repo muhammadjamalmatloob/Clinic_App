@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/constants/colors.dart';
+import '../../widgets/floating_bottom_nav.dart';
 
 class PatientShell extends StatelessWidget {
   final Widget child;
@@ -12,21 +13,22 @@ class PatientShell extends StatelessWidget {
     int currentIndex = _calculateSelectedIndex(context);
 
     return Scaffold(
-      body: child,
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: currentIndex,
-        onTap: (int idx) => _onItemTapped(idx, context),
-        selectedItemColor: AppColors.primaryPlum,
-        unselectedItemColor: AppColors.textSecondary,
-        backgroundColor: AppColors.white,
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.queue), label: 'Live Queue'),
-          BottomNavigationBarItem(icon: Icon(Icons.medical_services), label: 'Services'),
-          BottomNavigationBarItem(icon: Icon(Icons.smart_toy), label: 'AI Bot'),
-          BottomNavigationBarItem(icon: Icon(Icons.folder_shared), label: 'Vault'),
+      backgroundColor: AppColors.background,
+      body: Stack(
+        children: [
+          child,
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: FloatingBottomNav(
+              currentIndex: currentIndex,
+              onTap: (int idx) => _onItemTapped(idx, context),
+            ),
+          ),
         ],
       ),
+      extendBody: true,
     );
   }
 

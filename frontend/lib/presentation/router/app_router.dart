@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../domain/entities/user_entity.dart';
+import '../providers/auth_provider.dart';
 import '../screens/auth/auth_screen.dart';
 import '../screens/auth/onboarding_screen.dart';
 import '../screens/splash/splash_screen.dart';
@@ -12,6 +15,7 @@ import '../screens/staff/staff_desk_screen.dart';
 import '../screens/staff/staff_analytics_screen.dart';
 import '../screens/staff/staff_shell.dart';
 import '../screens/common/profile_settings_screen.dart';
+import '../screens/common/notifications_screen.dart';
 import '../screens/common/manage_dependents_screen.dart';
 import '../screens/common/vaccination_tracker_screen.dart';
 import '../screens/common/health_blog_screen.dart';
@@ -27,10 +31,32 @@ final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(de
 final GlobalKey<NavigatorState> _patientShellNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'patientShell');
 final GlobalKey<NavigatorState> _staffShellNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'staffShell');
 
-final GoRouter appRouter = GoRouter(
-  navigatorKey: _rootNavigatorKey,
-  initialLocation: '/',
-  routes: [
+final routerProvider = Provider<GoRouter>((ref) {
+  final authState = ref.watch(authProvider);
+
+  return GoRouter(
+    navigatorKey: _rootNavigatorKey,
+    initialLocation: '/',
+    redirect: (context, state) {
+      final path = state.uri.toString();
+      final isAuthFlow = path == '/' || path == '/onboarding' || path == '/auth';
+      
+      // If not logged in and not in auth flow, redirect to auth
+      if (authState == null && !isAuthFlow) {
+        return '/auth';
+      }
+      
+      // If logged in and in auth flow, redirect to appropriate dashboard
+      if (authState != null && isAuthFlow) {
+        if (authState.role == UserRole.staff) {
+          return '/staff';
+        }
+        return '/patient';
+      }
+      
+      return null;
+    },
+    routes: [
     GoRoute(
       path: '/',
       builder: (context, state) => const SplashScreen(),
@@ -46,6 +72,10 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/profile',
       builder: (context, state) => const ProfileSettingsScreen(),
+    ),
+    GoRoute(
+      path: '/notifications',
+      builder: (context, state) => const NotificationsScreen(),
     ),
     GoRoute(
       path: '/profile/dependents',
@@ -126,4 +156,5 @@ final GoRouter appRouter = GoRouter(
       ],
     ),
   ],
-);
+  );
+});

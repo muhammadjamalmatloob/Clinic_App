@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/colors.dart';
 import '../../../domain/entities/user_entity.dart';
 import '../../providers/auth_provider.dart';
+import '../../widgets/premium_background.dart';
+import '../../widgets/app_header.dart';
 
 class ProfileSettingsScreen extends ConsumerStatefulWidget {
   const ProfileSettingsScreen({super.key});
@@ -45,6 +47,22 @@ class _ProfileSettingsScreenState extends ConsumerState<ProfileSettingsScreen> {
     }
   }
 
+  bool _isSaving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final user = ref.read(authProvider);
+      if (user != null) {
+        setState(() {
+          _nameController.text = user.name;
+          _phoneController.text = user.phoneNumber;
+        });
+      }
+    });
+  }
+
   @override
   void dispose() {
     _nameController.dispose();
@@ -52,10 +70,36 @@ class _ProfileSettingsScreenState extends ConsumerState<ProfileSettingsScreen> {
     super.dispose();
   }
 
-  void _saveProfile() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(_isUrdu ? 'پروفائل کو اپ ڈیٹ کر دیا گیا' : 'Profile updated successfully!')),
-    );
+  void _saveProfile() async {
+    final user = ref.read(authProvider);
+    if (user == null) return;
+    
+    setState(() => _isSaving = true);
+    try {
+      final updatedUser = await ref.read(authRepositoryProvider).updateProfile(
+        user.id,
+        _nameController.text.trim(),
+        _phoneController.text.trim(),
+      );
+      
+      if (mounted) {
+        if (updatedUser != null) {
+          // Force a reload of the profile (authProvider would need invalidation ideally)
+          // For now, we just show success. In a real app we'd update authProvider state.
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(_isUrdu ? 'پروفائل کو اپ ڈیٹ کر دیا گیا' : 'Profile updated successfully!')),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Failed to update profile')),
+          );
+        }
+      }
+    } catch (e) {
+       if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+    } finally {
+       if (mounted) setState(() => _isSaving = false);
+    }
   }
 
   @override
@@ -63,41 +107,53 @@ class _ProfileSettingsScreenState extends ConsumerState<ProfileSettingsScreen> {
     final user = ref.watch(authProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(t('Profile & Settings')),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // User Header
-            Row(
-              children: [
-                const CircleAvatar(
-                  radius: 32,
-                  backgroundColor: AppColors.primaryPlum,
-                  child: Icon(Icons.person, size: 32, color: AppColors.white),
+      extendBodyBehindAppBar: true,
+      backgroundColor: AppColors.background,
+      body: PremiumBackground(
+        child: CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(
+              child: AppHeader(
+                title: t('Profile & Settings'),
+                leading: IconButton(
+                  icon: const Icon(Icons.arrow_back_ios, color: Colors.white, size: 20),
+                  onPressed: () => context.pop(),
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        user?.name ?? 'Guest User',
-                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        user?.phoneNumber ?? '',
-                        style: const TextStyle(color: AppColors.textSecondary),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+              ),
             ),
-            const SizedBox(height: 32),
+            SliverPadding(
+              padding: const EdgeInsets.all(16.0),
+              sliver: SliverToBoxAdapter(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // User Header
+                    Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 32,
+                          backgroundColor: Colors.white.withValues(alpha: 0.2),
+                          child: const Icon(Icons.person, size: 32, color: AppColors.primaryPlum),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                user?.name ?? 'Guest User',
+                                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.primaryPlum),
+                              ),
+                              Text(
+                                user?.phoneNumber ?? '',
+                                style: const TextStyle(color: AppColors.textSecondary),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 32),
 
             // Profile Edit Form
             _buildSectionHeader(t('Update Profile')),
@@ -256,6 +312,10 @@ class _ProfileSettingsScreenState extends ConsumerState<ProfileSettingsScreen> {
                 side: const BorderSide(color: AppColors.error),
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+                  ],
+                ),
               ),
             ),
           ],

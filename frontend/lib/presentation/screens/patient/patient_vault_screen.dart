@@ -1,74 +1,154 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/utils/pdf_generator.dart';
+import '../../widgets/premium_background.dart';
+import '../../widgets/glass_card.dart';
+import '../../widgets/app_header.dart';
+import '../../widgets/empty_state_widget.dart';
+import '../../providers/auth_provider.dart';
+import '../../providers/medical_provider.dart';
+import '../../../domain/entities/prescription_entity.dart';
 
-class PatientVaultScreen extends StatelessWidget {
+class PatientVaultScreen extends ConsumerStatefulWidget {
   const PatientVaultScreen({super.key});
 
   @override
+  ConsumerState<PatientVaultScreen> createState() => _PatientVaultScreenState();
+}
+
+class _PatientVaultScreenState extends ConsumerState<PatientVaultScreen> {
+  @override
   Widget build(BuildContext context) {
+    final user = ref.watch(authProvider);
+    if (user == null) {
+      return const Center(child: Text("Not logged in"));
+    }
+
+    final prescriptionsAsync = ref.watch(patientPrescriptionsProvider(user.id));
+    final medicalRecordsAsync = ref.watch(patientMedicalRecordsProvider(user.id));
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Medical Vault'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.person),
-            onPressed: () {
-              context.push('/profile');
-            },
-          )
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Pill Tracker Section
-            _buildSectionHeader('Medication Tracker', Icons.medication),
-            const SizedBox(height: 16),
-            Card(
-              elevation: 4,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    _buildPillTile('Iron Supplements', '1 Pill • After Breakfast', true),
-                    const Divider(),
-                    _buildPillTile('Calcium', '1 Pill • After Dinner', false),
-                  ],
+      extendBodyBehindAppBar: true,
+      backgroundColor: AppColors.background,
+      body: PremiumBackground(
+        child: RefreshIndicator(
+          onRefresh: () async {
+            ref.invalidate(patientPrescriptionsProvider(user.id));
+            ref.invalidate(patientMedicalRecordsProvider(user.id));
+          },
+          child: CustomScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            slivers: [
+              SliverToBoxAdapter(
+                child: AppHeader(
+                  title: 'Medical Vault',
+                  trailing: IconButton(
+                    icon: const Icon(Icons.refresh, color: Colors.white),
+                    onPressed: () {
+                      HapticFeedback.lightImpact();
+                      ref.invalidate(patientPrescriptionsProvider(user.id));
+                      ref.invalidate(patientMedicalRecordsProvider(user.id));
+                    },
+                  ),
                 ),
               ),
-            ),
-            
-            const SizedBox(height: 32),
-            
-            // Lab Reports & PDFs
-            _buildSectionHeader('Digital Records', Icons.folder_shared),
-            const SizedBox(height: 16),
-            
-            _buildRecordCard(context, 'Blood Test Report', 'Sept 15, 2026', Icons.science),
-            const SizedBox(height: 12),
-            _buildRecordCard(context, 'Ultrasound Scan', 'Aug 22, 2026', Icons.monitor_heart),
-            const SizedBox(height: 12),
-            _buildRecordCard(context, 'General Prescription', 'Aug 10, 2026', Icons.description),
-          ],
+              
+              prescriptionsAsync.when(
+                data: (prescriptions) {
+                  return medicalRecordsAsync.when(
+                    data: (records) {
+                      if (prescriptions.isEmpty && records.isEmpty) {
+                        return SliverFillRemaining(
+                          hasScrollBody: false,
+                          child: EmptyStateWidget(
+                            icon: Icons.folder_open,
+                            title: 'Vault is empty',
+                            message: 'Your medical records, prescriptions, and lab reports will appear here.',
+                            actionLabel: 'Refresh',
+                            onActionPressed: () {
+                              ref.invalidate(patientPrescriptionsProvider(user.id));
+                            },
+                          ),
+                        );
+                      }
+
+                      return SliverPadding(
+                        padding: const EdgeInsets.all(16.0),
+                        sliver: SliverList(
+                          delegate: SliverChildListDelegate([
+                            if (prescriptions.isNotEmpty) ...[
+                              _buildSectionHeader('Digital Prescriptions', Icons.medication).animate().fadeIn().slideX(begin: -0.1),
+                              const SizedBox(height: 16),
+                              ...prescriptions.map((p) => _buildPrescriptionCard(p)).toList(),
+                              const SizedBox(height: 32),
+                            ],
+                            
+                            if (records.isNotEmpty) ...[
+                              _buildSectionHeader('Medical Records', Icons.folder_shared).animate().fadeIn().slideX(begin: -0.1),
+                              const SizedBox(height: 16),
+                              ...records.map((r) => _buildRecordCard(context, r.title, r.recordDate, Icons.description)).toList(),
+                            ],
+                            const SizedBox(height: 120), // For bottom nav spacing
+                          ]),
+                        ),
+                      );
+                    },
+                    loading: () => const SliverFillRemaining(child: Center(child: CircularProgressIndicator())),
+                    error: (e, _) => SliverFillRemaining(child: Center(child: Text("Error: $e"))),
+                  );
+                },
+                loading: () => const SliverFillRemaining(child: Center(child: CircularProgressIndicator())),
+                error: (e, _) => SliverFillRemaining(child: Center(child: Text("Error: $e"))),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
+  Widget _buildPrescriptionCard(PrescriptionEntity prescription) {
+    return GlassCard(
+      padding: EdgeInsets.zero,
+      child: ExpansionTile(
+        title: Text('Prescription • ${prescription.issuedAt.split('T')[0]}', style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primaryPlum)),
+        subtitle: Text('${prescription.items.length} medications', style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+        leading: Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(color: AppColors.primaryPlum.withValues(alpha: 0.1), shape: BoxShape.circle),
+          child: const Icon(Icons.description, color: AppColors.primaryPlum),
+        ),
+        children: prescription.items.map((item) {
+          return ListTile(
+            title: Text(item.medicineName, style: const TextStyle(fontWeight: FontWeight.bold)),
+            subtitle: Text('${item.dosage} • ${item.frequency} for ${item.duration}\n${item.instructions ?? ""}'),
+            isThreeLine: true,
+          );
+        }).toList(),
+      ),
+    ).animate().fadeIn().slideY(begin: 0.1);
+  }
+
   Widget _buildSectionHeader(String title, IconData icon) {
     return Row(
       children: [
-        Icon(icon, color: AppColors.primaryPlum),
-        const SizedBox(width: 8),
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: AppColors.primaryPlum.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(icon, color: AppColors.primaryPlum, size: 20),
+        ),
+        const SizedBox(width: 12),
         Text(
           title,
           style: const TextStyle(
-            fontSize: 20,
+            fontSize: 18,
             fontWeight: FontWeight.bold,
             color: AppColors.textPrimary,
           ),
@@ -77,61 +157,34 @@ class PatientVaultScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildPillTile(String name, String time, bool taken) {
-    return ListTile(
-      contentPadding: EdgeInsets.zero,
-      leading: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: taken ? AppColors.success.withOpacity(0.1) : AppColors.primaryPeach.withOpacity(0.2),
-          shape: BoxShape.circle,
-        ),
-        child: Icon(
-          taken ? Icons.check_circle : Icons.access_time_filled,
-          color: taken ? AppColors.success : AppColors.primaryPeach,
-        ),
-      ),
-      title: Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
-      subtitle: Text(time),
-      trailing: taken 
-          ? const Text('Taken', style: TextStyle(color: AppColors.success, fontWeight: FontWeight.bold))
-          : ElevatedButton(
-              onPressed: () {},
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primaryPlum,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-              ),
-              child: const Text('Take', style: TextStyle(color: AppColors.white)),
-            ),
-    );
-  }
-
   Widget _buildRecordCard(BuildContext context, String title, String date, IconData icon) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+    return GlassCard(
+      padding: EdgeInsets.zero,
       child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
         leading: Container(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            gradient: AppColors.primaryGradient,
-            borderRadius: BorderRadius.circular(12),
+            color: AppColors.primaryPink.withValues(alpha: 0.1),
+            shape: BoxShape.circle,
           ),
-          child: Icon(icon, color: Colors.white),
+          child: Icon(icon, color: AppColors.primaryPink),
         ),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text(date),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primaryPlum)),
+        subtitle: Text(date, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
         trailing: IconButton(
-          icon: const Icon(Icons.picture_as_pdf, color: AppColors.primaryPlum),
-          onPressed: () async {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Preparing PDF for $title...')),
-            );
-            await PdfGenerator.generateAndPrintMedicalRecord(title, date, 'Patient User');
+          icon: const Icon(Icons.download, color: AppColors.primaryPlum),
+          onPressed: () {
+            HapticFeedback.lightImpact();
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Downloading $title...')));
+            PdfGenerator.generateAndPrintMedicalRecord(title, date, 'Aisha Khan');
           },
         ),
+        onTap: () {
+          HapticFeedback.lightImpact();
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Opening $title...')));
+        },
       ),
-    );
+    ).animate().fadeIn().slideY(begin: 0.1);
   }
 }

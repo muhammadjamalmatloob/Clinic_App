@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/colors.dart';
+import '../../providers/auth_provider.dart';
+import '../../providers/clinic_provider.dart';
 
-class BroadcastAnnouncementScreen extends StatefulWidget {
+class BroadcastAnnouncementScreen extends ConsumerStatefulWidget {
   const BroadcastAnnouncementScreen({super.key});
 
   @override
-  State<BroadcastAnnouncementScreen> createState() => _BroadcastAnnouncementScreenState();
+  ConsumerState<BroadcastAnnouncementScreen> createState() => _BroadcastAnnouncementScreenState();
 }
 
-class _BroadcastAnnouncementScreenState extends State<BroadcastAnnouncementScreen> {
+class _BroadcastAnnouncementScreenState extends ConsumerState<BroadcastAnnouncementScreen> {
   final TextEditingController _messageController = TextEditingController();
   bool _isSending = false;
 
@@ -17,16 +20,30 @@ class _BroadcastAnnouncementScreenState extends State<BroadcastAnnouncementScree
 
     setState(() => _isSending = true);
     
-    // Simulate network request
-    await Future.delayed(const Duration(seconds: 1));
-    
-    setState(() => _isSending = false);
-    
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Announcement broadcasted successfully to all waiting patients!')),
+    try {
+      final user = ref.read(authProvider);
+      await ref.read(clinicRepositoryProvider).createAnnouncement(
+        createdById: user!.id,
+        message: _messageController.text.trim(),
+        audience: 'all_patients',
       );
-      Navigator.of(context).pop();
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Announcement broadcasted successfully!')),
+        );
+        Navigator.of(context).pop();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to broadcast: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSending = false);
+      }
     }
   }
 
@@ -50,7 +67,7 @@ class _BroadcastAnnouncementScreenState extends State<BroadcastAnnouncementScree
             ),
             const SizedBox(height: 8),
             const Text(
-              'This message will be sent as a push notification to all patients currently waiting in the live queue.',
+              'This message will be shown on the dashboards of all patients.',
               textAlign: TextAlign.center,
               style: TextStyle(color: AppColors.textSecondary),
             ),
@@ -75,7 +92,7 @@ class _BroadcastAnnouncementScreenState extends State<BroadcastAnnouncementScree
               onPressed: _isSending ? null : _sendBroadcast,
               icon: _isSending ? const SizedBox() : const Icon(Icons.send),
               label: _isSending 
-                  ? const CircularProgressIndicator(color: Colors.white)
+                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                   : const Text('Send Broadcast', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primaryPlum,
