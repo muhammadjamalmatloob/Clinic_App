@@ -150,16 +150,7 @@ class StaffDashboard extends ConsumerWidget {
                               itemCount: waitingTokens.length,
                               itemBuilder: (context, index) {
                                 final token = waitingTokens[index];
-                                final patientName = patientsAsync.maybeWhen(
-                                  data: (patients) {
-                                    final patient = patients.cast().firstWhere(
-                                      (p) => p.id == token.patientId,
-                                      orElse: () => null,
-                                    );
-                                    return patient?.name ?? 'Unknown Patient';
-                                  },
-                                  orElse: () => 'Loading...',
-                                );
+                                final patientName = token.patientName;
 
                                 return Card(
                                   child: ListTile(

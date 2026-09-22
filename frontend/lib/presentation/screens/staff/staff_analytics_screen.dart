@@ -48,7 +48,7 @@ class StaffAnalyticsScreen extends ConsumerWidget {
                       const SizedBox(height: 16),
                       Row(
                         children: [
-                          _buildStatCard('Completion', '${(analytics.completionRate * 100).round()}%', Icons.check_circle, AppColors.success),
+                          _buildStatCard('Completion', '${analytics.completionRate.round()}%', Icons.check_circle, AppColors.success),
                           const SizedBox(width: 16),
                           _buildStatCard('Pending', '${analytics.pendingCount}', Icons.pending, AppColors.warning),
                         ],

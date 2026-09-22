@@ -7,7 +7,9 @@ import '../../widgets/glass_card.dart';
 import '../../widgets/app_header.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/appointment_provider.dart';
+import '../../providers/dependent_provider.dart';
 import '../../../domain/entities/service_entity.dart';
+import '../../../domain/entities/dependent_entity.dart';
 
 class BookAppointmentScreen extends ConsumerStatefulWidget {
   const BookAppointmentScreen({super.key});
@@ -18,6 +20,7 @@ class BookAppointmentScreen extends ConsumerStatefulWidget {
 
 class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
   ServiceEntity? _selectedService;
+  String? _selectedPatientId;
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
   final _reasonController = TextEditingController();
@@ -41,7 +44,7 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
       final timeStr = '${_selectedTime!.hour.toString().padLeft(2, '0')}:${_selectedTime!.minute.toString().padLeft(2, '0')}:00';
       
       await ref.read(appointmentRepositoryProvider).bookAppointment(
-        patientId: user.id,
+        patientId: _selectedPatientId ?? user.id,
         serviceId: _selectedService!.id,
         date: dateStr,
         time: timeStr,
@@ -97,6 +100,42 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
                         style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.primaryPlum),
                       ),
                       const SizedBox(height: 24),
+                      Consumer(
+                        builder: (context, ref, child) {
+                          final user = ref.watch(authProvider);
+                          final dependentsAsync = ref.watch(patientDependentsProvider);
+                          
+                          if (user == null) return const SizedBox();
+                          
+                          List<DropdownMenuItem<String>> patientItems = [
+                            DropdownMenuItem(value: user.id, child: const Text('Myself'))
+                          ];
+                          
+                          if (dependentsAsync.value != null) {
+                            patientItems.addAll(
+                              dependentsAsync.value!.map((d) => DropdownMenuItem(
+                                value: d.id,
+                                child: Text('${d.fullName} (${d.relationshipType})'),
+                              ))
+                            );
+                          }
+                          
+                          return DropdownButtonFormField<String>(
+                            decoration: InputDecoration(
+                              labelText: 'Patient',
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                              filled: true,
+                              fillColor: Colors.white.withValues(alpha: 0.5),
+                            ),
+                            value: _selectedPatientId ?? user.id,
+                            items: patientItems,
+                            onChanged: (val) {
+                              setState(() => _selectedPatientId = val);
+                            },
+                          );
+                        }
+                      ),
+                      const SizedBox(height: 16),
                       servicesAsync.when(
                         data: (services) {
                           return DropdownButtonFormField<ServiceEntity>(
