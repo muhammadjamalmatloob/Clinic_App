@@ -35,6 +35,26 @@ class AuthNotifier extends Notifier<UserEntity?> {
     await prefs.remove('access_token');
     state = null;
   }
+
+  Future<bool> googleSignIn() async {
+    final repo = ref.read(authRepositoryProvider);
+    final user = await repo.nativeGoogleSignIn();
+    if (user != null) {
+      state = user;
+      return true;
+    }
+    return false;
+  }
+
+  Future<String?> resetPassword(String email) async {
+    final repo = ref.read(authRepositoryProvider);
+    return await repo.resetPasswordForEmail(email);
+  }
+
+  Future<String?> updatePassword(String newPassword) async {
+    final repo = ref.read(authRepositoryProvider);
+    return await repo.updatePassword(newPassword);
+  }
 }
 
 final authProvider = NotifierProvider<AuthNotifier, UserEntity?>(() {

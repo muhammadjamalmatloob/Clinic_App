@@ -16,3 +16,12 @@ class LoginRequest(BaseModel):
 
 class GoogleLoginRequest(BaseModel):
     id_token: str
+    provider: str = "google"
+
+
+class ResetPasswordRequest(BaseModel):
+    email: EmailStr
+
+
+class UpdatePasswordRequest(BaseModel):
+    new_password: str

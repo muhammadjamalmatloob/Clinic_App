@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:app_links/app_links.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/theme/app_theme.dart';
@@ -13,11 +15,58 @@ void main() {
   );
 }
 
-class MyApp extends ConsumerWidget {
+class MyApp extends ConsumerStatefulWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends ConsumerState<MyApp> {
+  late AppLinks _appLinks;
+  StreamSubscription<Uri>? _linkSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    _initDeepLinks();
+  }
+
+  Future<void> _initDeepLinks() async {
+    _appLinks = AppLinks();
+    _linkSubscription = _appLinks.uriLinkStream.listen((uri) {
+      debugPrint('Deep link received: $uri');
+      if (uri.scheme == 'clinicapp' && uri.host == 'reset-callback') {
+        // We received a password reset callback!
+        // We need to parse the access token from the hash fragment
+        // Supabase puts access_token=... in the fragment.
+        final fragment = uri.fragment;
+        if (fragment.isNotEmpty) {
+          final params = Uri.splitQueryString(fragment);
+          final accessToken = params['access_token'];
+          if (accessToken != null) {
+            // We got the token! We should probably save it and navigate to the new password screen.
+            // Wait, our backend handles update. We can just navigate to the new password screen!
+            final router = ref.read(routerProvider);
+            router.go('/new-password');
+          }
+        } else {
+          // If no fragment, just go anyway to be safe (maybe the URL is formatted differently)
+          final router = ref.read(routerProvider);
+          router.go('/new-password');
+        }
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _linkSubscription?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final goRouter = ref.watch(routerProvider);
 
     return MaterialApp.router(

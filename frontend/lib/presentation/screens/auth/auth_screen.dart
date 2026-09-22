@@ -93,13 +93,74 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   void _continueWithGoogle() async {
     HapticFeedback.lightImpact();
     setState(() => _isLoading = true);
-    await Future.delayed(const Duration(seconds: 1));
+    
+    final success = await ref.read(authProvider.notifier).googleSignIn();
     setState(() => _isLoading = false);
     
-    final success = await ref.read(authProvider.notifier).login('user@gmail.com', 'user');
     if (success && mounted) {
-      context.go('/patient');
+      final user = ref.read(authProvider);
+      if (user?.role == UserRole.staff) {
+        context.go('/staff');
+      } else {
+        context.go('/patient');
+      }
+    } else if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Google Sign-In failed or was canceled')),
+      );
     }
+  }
+
+  void _showForgotPasswordDialog() {
+    final resetEmailController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          title: const Text('Reset Password', style: TextStyle(color: AppColors.primaryPlum)),
+          content: TextField(
+            controller: resetEmailController,
+            keyboardType: TextInputType.emailAddress,
+            decoration: const InputDecoration(
+              hintText: 'Enter your email',
+              prefixIcon: Icon(Icons.email, color: AppColors.primaryPlum),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: AppColors.primaryPlum),
+              onPressed: () async {
+                final email = resetEmailController.text.trim();
+                if (email.isEmpty) return;
+                
+                Navigator.pop(context);
+                setState(() => _isLoading = true);
+                final error = await ref.read(authProvider.notifier).resetPassword(email);
+                setState(() => _isLoading = false);
+                
+                if (mounted) {
+                  if (error == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Password reset email sent! Check your inbox.')),
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(error)),
+                    );
+                  }
+                }
+              },
+              child: const Text('Send Reset Link', style: TextStyle(color: Colors.white)),
+            ),
+          ],
+        );
+      }
+    );
   }
 
   @override
@@ -248,15 +309,15 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                           const SizedBox(height: 16),
                           _buildTextField('Password', Icons.lock, _passwordController, isPassword: true),
                           
-                          if (_isLogin)
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: TextButton(
-                                onPressed: () {},
-                                child: const Text('Forgot Password?', style: TextStyle(color: AppColors.primaryPink, fontWeight: FontWeight.bold)),
-                              ),
-                            )
-                          else
+                            if (_isLogin)
+                              Align(
+                                alignment: Alignment.centerRight,
+                                child: TextButton(
+                                  onPressed: _isLoading ? null : _showForgotPasswordDialog,
+                                  child: const Text('Forgot Password?', style: TextStyle(color: AppColors.primaryPink, fontWeight: FontWeight.bold)),
+                                ),
+                              )
+                            else
                             const SizedBox(height: 24),
                             
                           // Submit Button
