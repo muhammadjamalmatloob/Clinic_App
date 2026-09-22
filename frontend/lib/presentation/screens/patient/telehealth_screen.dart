@@ -26,11 +26,12 @@ class TelehealthScreen extends StatelessWidget {
               ),
             ),
             Expanded(
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 800),
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(16.0),
+              child: Builder(
+                builder: (context) {
+                  final sw = MediaQuery.of(context).size.width;
+                  final pad = sw > 800 ? (sw - 800) / 2 : 0.0;
+                  return SingleChildScrollView(
+                    padding: EdgeInsets.fromLTRB(16.0 + pad, 16.0, 16.0 + pad, 16.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
@@ -94,8 +95,8 @@ class TelehealthScreen extends StatelessWidget {
                     ).animate().fadeIn(delay: 300.ms).slideY(begin: 0.1),
                   ],
                 ),
-              ),
-              ),
+                  );
+                },
               ),
             ),
           ],

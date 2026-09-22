@@ -106,12 +106,15 @@ class _ProfileSettingsScreenState extends ConsumerState<ProfileSettingsScreen> {
       extendBodyBehindAppBar: true,
       backgroundColor: AppColors.background,
       body: PremiumBackground(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 800),
-            child: CustomScrollView(
+        child: Builder(
+          builder: (context) {
+            final sw = MediaQuery.of(context).size.width;
+            final pad = sw > 800 ? (sw - 800) / 2 : 0.0;
+            return CustomScrollView(
               slivers: [
-            SliverToBoxAdapter(
+            SliverPadding(
+              padding: EdgeInsets.symmetric(horizontal: pad),
+              sliver: SliverToBoxAdapter(
               child: AppHeader(
                 title: t('Profile & Settings'),
                 leading: IconButton(
@@ -120,8 +123,9 @@ class _ProfileSettingsScreenState extends ConsumerState<ProfileSettingsScreen> {
                 ),
               ),
             ),
+            ),
             SliverPadding(
-              padding: const EdgeInsets.all(16.0),
+              padding: EdgeInsets.fromLTRB(16.0 + pad, 16.0, 16.0 + pad, 16.0),
               sliver: SliverToBoxAdapter(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -303,8 +307,8 @@ class _ProfileSettingsScreenState extends ConsumerState<ProfileSettingsScreen> {
               ),
             ),
           ],
-        ),
-      ),
+        );
+        },
       ),
       ),
     );

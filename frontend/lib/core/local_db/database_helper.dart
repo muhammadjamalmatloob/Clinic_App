@@ -27,8 +27,20 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: _createDB,
+      onUpgrade: (db, oldVersion, newVersion) async {
+        if (oldVersion < 2) {
+          await db.execute('''
+CREATE TABLE chat_messages (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  role TEXT NOT NULL,
+  content TEXT NOT NULL,
+  timestamp TEXT NOT NULL
+)
+''');
+        }
+      },
     );
   }
 
@@ -52,6 +64,15 @@ CREATE TABLE users (
 CREATE TABLE app_settings (
   key $idType,
   value $textType
+)
+''');
+
+    await db.execute('''
+CREATE TABLE chat_messages (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  role TEXT NOT NULL,
+  content TEXT NOT NULL,
+  timestamp TEXT NOT NULL
 )
 ''');
   }
@@ -87,5 +108,24 @@ CREATE TABLE app_settings (
       return result.first['value'] as String;
     }
     return null;
+  }
+
+  Future<void> saveChatMessage(String role, String content) async {
+    final db = await instance.database;
+    await db.insert('chat_messages', {
+      'role': role,
+      'content': content,
+      'timestamp': DateTime.now().toIso8601String(),
+    });
+  }
+
+  Future<List<Map<String, dynamic>>> getChatMessages() async {
+    final db = await instance.database;
+    return await db.query('chat_messages', orderBy: 'timestamp ASC');
+  }
+
+  Future<void> clearChatMessages() async {
+    final db = await instance.database;
+    await db.delete('chat_messages');
   }
 }

@@ -36,11 +36,12 @@ class _CostEstimatorScreenState extends ConsumerState<CostEstimatorScreen> {
               ),
             ),
             Expanded(
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 800),
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(16.0),
+              child: Builder(
+                builder: (context) {
+                  final sw = MediaQuery.of(context).size.width;
+                  final pad = sw > 800 ? (sw - 800) / 2 : 0.0;
+                  return SingleChildScrollView(
+                    padding: EdgeInsets.fromLTRB(16.0 + pad, 16.0, 16.0 + pad, 16.0),
                     child: GlassCard(
                       padding: const EdgeInsets.all(24.0),
                       child: Column(
@@ -114,8 +115,8 @@ class _CostEstimatorScreenState extends ConsumerState<CostEstimatorScreen> {
                     ],
                   ),
                 ),
-              ),
-              ),
+                  );
+                },
               ),
             ),
           ],

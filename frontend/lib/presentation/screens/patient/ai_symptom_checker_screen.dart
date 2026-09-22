@@ -9,6 +9,7 @@ import '../../widgets/app_header.dart';
 import '../../../domain/entities/ai_entity.dart';
 import '../../providers/ai_provider.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import '../../../core/local_db/database_helper.dart';
 
 class AiSymptomCheckerScreen extends ConsumerStatefulWidget {
   const AiSymptomCheckerScreen({super.key});
@@ -49,33 +50,61 @@ class _AiSymptomCheckerScreenState extends ConsumerState<AiSymptomCheckerScreen>
     });
   }
 
+  @override
+  void initState() {
+    super.initState();
+    _loadMessages();
+  }
+
+  Future<void> _loadMessages() async {
+    final msgs = await DatabaseHelper.instance.getChatMessages();
+    if (msgs.isNotEmpty) {
+      setState(() {
+        _messages.clear();
+        _messages.addAll(msgs.map((m) => ChatMessage(
+          role: m['role'] as String,
+          content: m['content'] as String,
+        )));
+      });
+      _scrollToBottom();
+    } else {
+      await DatabaseHelper.instance.saveChatMessage('model', _messages.first.content);
+    }
+  }
+
   void _sendMessage() async {
     final text = _controller.text.trim();
     if (text.isEmpty) return;
     
+    final userMsg = ChatMessage(role: 'user', content: text);
     setState(() {
-      _messages.add(ChatMessage(role: 'user', content: text));
+      _messages.add(userMsg);
       _controller.clear();
       _isLoading = true;
     });
     
+    DatabaseHelper.instance.saveChatMessage(userMsg.role, userMsg.content);
     _scrollToBottom();
     
     try {
       final reply = await ref.read(aiRepositoryProvider).chat(_messages);
       if (mounted) {
+        final modelMsg = ChatMessage(role: 'model', content: reply);
         setState(() {
-          _messages.add(ChatMessage(role: 'model', content: reply));
+          _messages.add(modelMsg);
           _isLoading = false;
         });
+        DatabaseHelper.instance.saveChatMessage(modelMsg.role, modelMsg.content);
         _scrollToBottom();
       }
     } catch (e) {
       if (mounted) {
+        final errorMsg = ChatMessage(role: 'model', content: 'I am sorry, but I am unable to connect to my services right now.');
         setState(() {
-          _messages.add(ChatMessage(role: 'model', content: 'I am sorry, but I am unable to connect to my services right now.'));
+          _messages.add(errorMsg);
           _isLoading = false;
         });
+        DatabaseHelper.instance.saveChatMessage(errorMsg.role, errorMsg.content);
         _scrollToBottom();
       }
     }
@@ -87,18 +116,22 @@ class _AiSymptomCheckerScreenState extends ConsumerState<AiSymptomCheckerScreen>
       extendBodyBehindAppBar: true,
       backgroundColor: AppColors.background,
       body: PremiumBackground(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 800),
-            child: Column(
+        child: Builder(
+          builder: (context) {
+            final sw = MediaQuery.of(context).size.width;
+            final pad = sw > 800 ? (sw - 800) / 2 : 0.0;
+            return Column(
               children: [
-            const AppHeader(
-              title: 'AI Symptom Checker',
-            ),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: pad),
+                  child: const AppHeader(
+                    title: 'AI Symptom Checker',
+                  ),
+                ),
               Expanded(
                 child: ListView.builder(
                   controller: _scrollController,
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                  padding: EdgeInsets.symmetric(horizontal: 16.0 + pad, vertical: 8.0),
                   itemCount: _messages.length + (_isLoading ? 1 : 0),
                   itemBuilder: (context, index) {
                     if (index == _messages.length && _isLoading) {
@@ -150,7 +183,7 @@ class _AiSymptomCheckerScreenState extends ConsumerState<AiSymptomCheckerScreen>
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 16.0, bottom: 120.0),
+                padding: EdgeInsets.only(left: 16.0 + pad, right: 16.0 + pad, top: 16.0, bottom: 120.0),
                 child: GlassCard(
                   borderRadius: 30,
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -186,11 +219,11 @@ class _AiSymptomCheckerScreenState extends ConsumerState<AiSymptomCheckerScreen>
                 ),
               ),
             ],
-          ),
+            );
+          },
         ),
-        ),
-        ),
-      );
+      ),
+    );
   }
 }
 

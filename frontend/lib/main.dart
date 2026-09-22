@@ -6,13 +6,44 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/theme/app_theme.dart';
 import 'core/constants/strings.dart';
 import 'presentation/router/app_router.dart';
+import 'presentation/widgets/custom_window_caption.dart';
 
 import 'presentation/providers/auth_provider.dart';
 import 'core/local_db/database_helper.dart';
 
+import 'dart:io';
+import 'package:flutter/foundation.dart';
+import 'package:window_manager/window_manager.dart';
+import 'package:screen_retriever/screen_retriever.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
+  if (!kIsWeb && (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
+    await windowManager.ensureInitialized();
+    final display = await screenRetriever.getPrimaryDisplay();
+    final screenWidth = display.size.width;
+    // Subtract 60px to account for the Windows taskbar, preventing the top of the app from going off-screen when centered.
+    final screenHeight = display.size.height - 60;
+    
+    final targetWidth = screenWidth * 0.6;
+    
+    WindowOptions windowOptions = WindowOptions(
+      size: Size(targetWidth, screenHeight),
+      minimumSize: Size(400, screenHeight),
+      maximumSize: Size(targetWidth, screenHeight),
+      center: true,
+      backgroundColor: Colors.transparent,
+      skipTaskbar: false,
+      titleBarStyle: TitleBarStyle.hidden,
+    );
+    
+    windowManager.waitUntilReadyToShow(windowOptions, () async {
+      await windowManager.show();
+      await windowManager.focus();
+    });
+  }
+
   await DatabaseHelper.instance.database;
 
   final container = ProviderContainer();
@@ -89,6 +120,20 @@ class _MyAppState extends ConsumerState<MyApp> {
       title: AppStrings.appName,
       theme: AppTheme.lightTheme,
       routerConfig: goRouter,
+      builder: (context, child) {
+        if (!kIsWeb && (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
+          return Scaffold(
+            backgroundColor: Colors.transparent,
+            body: Column(
+              children: [
+                const CustomWindowCaption(),
+                Expanded(child: child ?? const SizedBox()),
+              ],
+            ),
+          );
+        }
+        return child ?? const SizedBox();
+      },
       debugShowCheckedModeBanner: false,
     );
   }

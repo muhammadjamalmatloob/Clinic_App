@@ -24,12 +24,13 @@ class PatientServicesScreen extends ConsumerWidget {
               title: 'Services & Booking',
             ),
             Expanded(
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 800),
-                  child: SingleChildScrollView(
+              child: Builder(
+                builder: (context) {
+                  final sw = MediaQuery.of(context).size.width;
+                  final pad = sw > 800 ? (sw - 800) / 2 : 16.0;
+                  return SingleChildScrollView(
                     physics: const BouncingScrollPhysics(),
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                    padding: EdgeInsets.symmetric(horizontal: pad, vertical: 8.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
@@ -122,8 +123,8 @@ class PatientServicesScreen extends ConsumerWidget {
               ),
                       ],
                     ),
-                  ),
-                ),
+                  );
+                },
               ),
             ),
           ],

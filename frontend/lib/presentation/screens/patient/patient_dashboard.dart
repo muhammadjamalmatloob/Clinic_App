@@ -38,15 +38,18 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
       extendBodyBehindAppBar: true,
       backgroundColor: AppColors.background,
       body: PremiumBackground(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 800),
-            child: RefreshIndicator(
+        child: Builder(
+          builder: (context) {
+            final screenWidth = MediaQuery.of(context).size.width;
+            final horizontalPadding = screenWidth > 800 ? (screenWidth - 800) / 2 : 0.0;
+            return RefreshIndicator(
               onRefresh: () async {},
               child: CustomScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
             slivers: [
-              SliverToBoxAdapter(
+              SliverPadding(
+                padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+                sliver: SliverToBoxAdapter(
                 child: AppHeader(
                   title: user?.name ?? 'Patient',
                   subtitle: 'Good morning,',
@@ -69,8 +72,9 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
                   ),
                 ),
               ),
+              ),
             SliverPadding(
-              padding: const EdgeInsets.all(16.0),
+              padding: EdgeInsets.fromLTRB(16.0 + horizontalPadding, 16.0, 16.0 + horizontalPadding, 16.0),
               sliver: SliverList(
                 delegate: SliverChildListDelegate([
               
@@ -413,8 +417,8 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
         ),
               ],
             ),
-          ),
-        ),
+          );
+        },
         ),
       ),
     );

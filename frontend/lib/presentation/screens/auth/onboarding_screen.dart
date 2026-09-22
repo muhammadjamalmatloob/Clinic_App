@@ -61,23 +61,15 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           gradient: AppColors.primaryGradient,
         ),
         child: SafeArea(
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 600),
-              child: Column(
-                children: [
-                  Align(
-                alignment: Alignment.topRight,
-                child: TextButton(
-                  onPressed: () => context.go('/auth'),
-                  child: const Text(
-                    'Skip',
-                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-              Expanded(
-                child: PageView.builder(
+                child: Stack(
+                  children: [
+                    Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 600),
+                        child: Column(
+                          children: [
+                            Expanded(
+                              child: PageView.builder(
                   controller: _pageController,
                   onPageChanged: (index) {
                     setState(() {
@@ -168,6 +160,19 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             ],
           ),
         ),
+        ),
+        Positioned(
+          top: 16,
+          right: 16,
+          child: TextButton(
+            onPressed: () => context.go('/auth'),
+            child: const Text(
+              'Skip',
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            ),
+          ),
+        ),
+        ],
         ),
         ),
       ),
