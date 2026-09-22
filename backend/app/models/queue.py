@@ -64,3 +64,11 @@ class QueueToken(TimestampMixin, Base):
         back_populates="queue_tokens", foreign_keys=[patient_id]
     )
     dependent: Mapped["Dependent | None"] = relationship(back_populates="queue_tokens")
+
+    @property
+    def patient_name(self) -> str | None:
+        return self.patient.full_name if self.patient else None
+
+    @property
+    def dependent_name(self) -> str | None:
+        return self.dependent.full_name if self.dependent else None

@@ -6,7 +6,7 @@ abstract class IQueueRepository {
   Stream<List<TokenEntity>> getQueueStream();
   
   /// Patients call this to get a new token.
-  Future<TokenEntity> requestToken(String patientId, String patientName);
+  Future<TokenEntity> requestToken(String? patientId, String? dependentId, String patientName);
   
   /// Staff calls this to progress the queue.
   Future<void> callNextPatient();

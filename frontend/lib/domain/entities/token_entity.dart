@@ -4,6 +4,7 @@ class TokenEntity {
   final String id;
   final int tokenNumber;
   final String patientId;
+  final String? dependentId;
   final String patientName;
   final DateTime issuedAt;
   final TokenStatus status;
@@ -13,6 +14,7 @@ class TokenEntity {
     required this.id,
     required this.tokenNumber,
     required this.patientId,
+    this.dependentId,
     required this.patientName,
     required this.issuedAt,
     this.status = TokenStatus.waiting,
@@ -23,6 +25,7 @@ class TokenEntity {
     String? id,
     int? tokenNumber,
     String? patientId,
+    String? dependentId,
     String? patientName,
     DateTime? issuedAt,
     TokenStatus? status,
@@ -32,10 +35,36 @@ class TokenEntity {
       id: id ?? this.id,
       tokenNumber: tokenNumber ?? this.tokenNumber,
       patientId: patientId ?? this.patientId,
+      dependentId: dependentId ?? this.dependentId,
       patientName: patientName ?? this.patientName,
       issuedAt: issuedAt ?? this.issuedAt,
       status: status ?? this.status,
       estimatedWaitTimeMinutes: estimatedWaitTimeMinutes ?? this.estimatedWaitTimeMinutes,
+    );
+  }
+
+  factory TokenEntity.fromJson(Map<String, dynamic> json) {
+    TokenStatus parseStatus(String statusStr) {
+      switch (statusStr.toLowerCase()) {
+        case 'serving': return TokenStatus.serving;
+        case 'completed': return TokenStatus.completed;
+        case 'cancelled': return TokenStatus.cancelled;
+        case 'paused': return TokenStatus.paused;
+        case 'waiting':
+        default:
+          return TokenStatus.waiting;
+      }
+    }
+
+    return TokenEntity(
+      id: json['id'] as String,
+      tokenNumber: json['token_number'] as int,
+      patientId: json['patient_id']?.toString() ?? '',
+      dependentId: json['dependent_id']?.toString(),
+      patientName: json['dependent_name'] ?? json['patient_name'] ?? 'Patient',
+      issuedAt: DateTime.parse(json['issued_at']),
+      status: parseStatus(json['status'] as String),
+      estimatedWaitTimeMinutes: json['estimated_wait_minutes'] as int? ?? 0,
     );
   }
 }

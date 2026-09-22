@@ -47,6 +47,22 @@ class _ProfileSettingsScreenState extends ConsumerState<ProfileSettingsScreen> {
     }
   }
 
+  bool _isSaving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final user = ref.read(authProvider);
+      if (user != null) {
+        setState(() {
+          _nameController.text = user.name;
+          _phoneController.text = user.phoneNumber;
+        });
+      }
+    });
+  }
+
   @override
   void dispose() {
     _nameController.dispose();
@@ -54,10 +70,36 @@ class _ProfileSettingsScreenState extends ConsumerState<ProfileSettingsScreen> {
     super.dispose();
   }
 
-  void _saveProfile() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(_isUrdu ? 'پروفائل کو اپ ڈیٹ کر دیا گیا' : 'Profile updated successfully!')),
-    );
+  void _saveProfile() async {
+    final user = ref.read(authProvider);
+    if (user == null) return;
+    
+    setState(() => _isSaving = true);
+    try {
+      final updatedUser = await ref.read(authRepositoryProvider).updateProfile(
+        user.id,
+        _nameController.text.trim(),
+        _phoneController.text.trim(),
+      );
+      
+      if (mounted) {
+        if (updatedUser != null) {
+          // Force a reload of the profile (authProvider would need invalidation ideally)
+          // For now, we just show success. In a real app we'd update authProvider state.
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(_isUrdu ? 'پروفائل کو اپ ڈیٹ کر دیا گیا' : 'Profile updated successfully!')),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Failed to update profile')),
+          );
+        }
+      }
+    } catch (e) {
+       if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+    } finally {
+       if (mounted) setState(() => _isSaving = false);
+    }
   }
 
   @override

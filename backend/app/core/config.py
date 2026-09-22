@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     direct_url: str = ""
     supabase_url: str = ""
     supabase_anon_key: str = ""
+    gemini_api_key: str = ""
 
     model_config = SettingsConfigDict(
         env_file=".env",

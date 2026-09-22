@@ -12,6 +12,7 @@ import '../../../core/constants/strings.dart';
 import '../../../domain/entities/token_entity.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/queue_provider.dart';
+import '../../providers/patients_provider.dart';
 
 class StaffDashboard extends ConsumerWidget {
   const StaffDashboard({super.key});
@@ -140,22 +141,29 @@ class StaffDashboard extends ConsumerWidget {
                 const SizedBox(height: 8),
                   waitingTokens.isEmpty
                       ? const Center(child: Text('No patients waiting'))
-                      : ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: waitingTokens.length,
-                          itemBuilder: (context, index) {
-                            final token = waitingTokens[index];
-                            return Card(
-                              child: ListTile(
-                                leading: CircleAvatar(
-                                  backgroundColor: AppColors.background,
-                                  child: Text('${token.tokenNumber}', style: const TextStyle(fontWeight: FontWeight.bold)),
-                                ),
-                                title: Text(token.patientName),
-                                subtitle: Text('Est. Wait: ${token.estimatedWaitTimeMinutes} mins'),
-                                trailing: const Icon(Icons.more_vert),
-                              ),
+                      : Consumer(
+                          builder: (context, ref, child) {
+                            final patientsAsync = ref.watch(patientsProvider);
+                            return ListView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: waitingTokens.length,
+                              itemBuilder: (context, index) {
+                                final token = waitingTokens[index];
+                                final patientName = token.patientName;
+
+                                return Card(
+                                  child: ListTile(
+                                    leading: CircleAvatar(
+                                      backgroundColor: AppColors.background,
+                                      child: Text('${token.tokenNumber}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                                    ),
+                                    title: Text(patientName),
+                                    subtitle: Text('Est. Wait: ${token.estimatedWaitTimeMinutes} mins'),
+                                    trailing: const Icon(Icons.more_vert),
+                                  ),
+                                );
+                              },
                             );
                           },
                         ),
@@ -164,7 +172,7 @@ class StaffDashboard extends ConsumerWidget {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (_, __) => const Center(child: Text('Failed to load queue')),
+        error: (e, stack) => Center(child: Text('Failed to load queue: $e')),
       ),
     ),
   ],
