@@ -10,6 +10,7 @@ import '../../../domain/entities/user_entity.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/premium_background.dart';
 import '../../widgets/glass_card.dart';
+import '../../../presentation/widgets/custom_toast.dart';
 
 class AuthScreen extends ConsumerStatefulWidget {
   const AuthScreen({super.key});
@@ -62,9 +63,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
         context.go('/patient');
       }
     } else if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Invalid credentials. Use user@gmail.com/user')),
-      );
+      CustomToast.showSuccess(context, 'Success');
     }
   }
 
@@ -79,14 +78,10 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     setState(() => _isLoading = false);
     
     if (errorMsg == null && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Signup successful! Please login.')),
-      );
+      CustomToast.showSuccess(context, 'Success');
       setState(() => _isLogin = true);
     } else if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(errorMsg ?? 'Signup failed')),
-      );
+      CustomToast.showError(context, errorMsg ?? 'Signup failed');
     }
   }
 
@@ -105,9 +100,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
         context.go('/patient');
       }
     } else if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Google Sign-In failed or was canceled')),
-      );
+      CustomToast.showSuccess(context, 'Success');
     }
   }
 
@@ -145,13 +138,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                 
                 if (mounted) {
                   if (error == null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Password reset email sent! Check your inbox.')),
-                    );
+                    CustomToast.showSuccess(context, 'Success');
                   } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(error)),
-                    );
+                    CustomToast.showError(context, error);
                   }
                 }
               },

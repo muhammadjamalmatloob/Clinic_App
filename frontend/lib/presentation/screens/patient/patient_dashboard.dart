@@ -16,6 +16,7 @@ import '../../providers/clinic_provider.dart';
 import '../../providers/dependent_provider.dart';
 import '../../../domain/entities/token_entity.dart';
 import '../../../domain/entities/dependent_entity.dart';
+import '../../../presentation/widgets/custom_toast.dart';
 
 class PatientDashboard extends ConsumerStatefulWidget {
   const PatientDashboard({super.key});
@@ -190,7 +191,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
                       : ElevatedButton.icon(
                       onPressed: () {
                         if (dependentsAsync.hasError) {
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to load dependents: ${dependentsAsync.error}')));
+                          CustomToast.showError(context, 'Failed to load dependents');
                           return;
                         }
                         _showRequestTokenDialog(context, user!.id, user.name, dependentsAsync.value ?? []);
@@ -299,7 +300,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
                   Expanded(
                     child: GestureDetector(
                       onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Coming Soon')));
+                        context.push('/patient/book');
                       },
                       child: const GlassCard(
                         padding: EdgeInsets.symmetric(vertical: 16),
@@ -317,7 +318,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
                   Expanded(
                     child: GestureDetector(
                       onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Coming Soon')));
+                        context.push('/patient/telehealth');
                       },
                       child: const GlassCard(
                         padding: EdgeInsets.symmetric(vertical: 16),
@@ -482,9 +483,9 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
           String? dId = selectedId != userId ? selectedId : null;
           
           await queueRepo.requestToken(pId, dId, selectedName);
-          if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Token Requested!')));
+          if (mounted) CustomToast.showSuccess(context, 'Token requested successfully');
         } catch (e) {
-          if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed: $e')));
+          if (mounted) CustomToast.showError(context, 'Failed to request token');
         } finally {
           if (mounted) this.setState(() => _isRequestingToken = false);
         }

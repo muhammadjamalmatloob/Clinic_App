@@ -7,6 +7,9 @@ class AppointmentEntity {
   final String status;
   final String? reason;
 
+  final String? patientName;
+  final String? dependentName;
+
   AppointmentEntity({
     required this.id,
     required this.patientId,
@@ -15,6 +18,8 @@ class AppointmentEntity {
     required this.appointmentTime,
     required this.status,
     this.reason,
+    this.patientName,
+    this.dependentName,
   });
 
   factory AppointmentEntity.fromJson(Map<String, dynamic> json) {
@@ -26,6 +31,8 @@ class AppointmentEntity {
       appointmentTime: json['appointment_time'] as String,
       status: json['status'] as String,
       reason: json['reason'] as String?,
+      patientName: json['patient_name'] as String?,
+      dependentName: json['dependent_name'] as String?,
     );
   }
 }

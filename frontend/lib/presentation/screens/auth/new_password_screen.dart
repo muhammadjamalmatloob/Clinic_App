@@ -7,6 +7,7 @@ import '../../../core/constants/colors.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/premium_background.dart';
 import '../../widgets/glass_card.dart';
+import '../../../presentation/widgets/custom_toast.dart';
 
 class NewPasswordScreen extends ConsumerStatefulWidget {
   const NewPasswordScreen({super.key});
@@ -33,9 +34,7 @@ class _NewPasswordScreenState extends ConsumerState<NewPasswordScreen> {
     final confirm = _confirmPasswordController.text.trim();
 
     if (pass.isEmpty || pass != confirm) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Passwords do not match or are empty')),
-      );
+      CustomToast.showError(context, 'Passwords do not match');
       return;
     }
 
@@ -45,14 +44,10 @@ class _NewPasswordScreenState extends ConsumerState<NewPasswordScreen> {
 
     if (mounted) {
       if (error == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Password updated successfully! Please login.')),
-        );
+        CustomToast.showSuccess(context, 'Success');
         context.go('/auth');
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(error)),
-        );
+        CustomToast.showError(context, error);
       }
     }
   }

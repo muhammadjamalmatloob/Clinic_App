@@ -284,7 +284,11 @@ async def list_appointments(
     patient_id: UUID | None = None,
     session: AsyncSession = Depends(get_session),
 ) -> list[Appointment]:
-    query = select(Appointment).order_by(Appointment.appointment_date, Appointment.appointment_time)
+    query = (
+        select(Appointment)
+        .options(selectinload(Appointment.patient), selectinload(Appointment.dependent))
+        .order_by(Appointment.appointment_date, Appointment.appointment_time)
+    )
     if appointment_date:
         query = query.where(Appointment.appointment_date == appointment_date)
     if patient_id:

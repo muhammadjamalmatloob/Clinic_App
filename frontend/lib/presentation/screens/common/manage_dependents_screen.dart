@@ -7,6 +7,7 @@ import '../../widgets/glass_card.dart';
 import '../../widgets/app_header.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/dependent_provider.dart';
+import '../../../presentation/widgets/custom_toast.dart';
 
 class ManageDependentsScreen extends ConsumerStatefulWidget {
   const ManageDependentsScreen({super.key});
@@ -78,7 +79,7 @@ class _ManageDependentsScreenState extends ConsumerState<ManageDependentsScreen>
                   ElevatedButton(
                     onPressed: isSubmitting ? null : () async {
                       if (nameController.text.trim().isEmpty || selectedRelationship == null) {
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Name and Relationship are required')));
+                        CustomToast.showError(context, 'Name and Relationship are required');
                         return;
                       }
 
@@ -98,11 +99,11 @@ class _ManageDependentsScreenState extends ConsumerState<ManageDependentsScreen>
                         
                         if (mounted) {
                           Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Dependent Added Successfully!')));
+                          CustomToast.showSuccess(context, 'Dependent added successfully');
                         }
                       } catch (e) {
                         if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed: $e')));
+                          CustomToast.showError(context, 'Failed to add dependent: $e');
                         }
                       } finally {
                         if (mounted) {
@@ -135,11 +136,11 @@ class _ManageDependentsScreenState extends ConsumerState<ManageDependentsScreen>
       await ref.read(dependentRepositoryProvider).deleteDependent(id);
       ref.invalidate(patientDependentsProvider);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Dependent deleted')));
+        CustomToast.showSuccess(context, 'Dependent deleted');
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to delete: $e')));
+        CustomToast.showError(context, 'Failed to delete dependent');
       }
     }
   }

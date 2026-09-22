@@ -10,6 +10,7 @@ import '../../providers/appointment_provider.dart';
 import '../../providers/dependent_provider.dart';
 import '../../../domain/entities/service_entity.dart';
 import '../../../domain/entities/dependent_entity.dart';
+import '../../../presentation/widgets/custom_toast.dart';
 
 class BookAppointmentScreen extends ConsumerStatefulWidget {
   const BookAppointmentScreen({super.key});
@@ -28,9 +29,7 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
 
   void _bookAppointment() async {
     if (_selectedService == null || _selectedDate == null || _selectedTime == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select service, date, and time')),
-      );
+      CustomToast.showError(context, 'Please select service, date, and time');
       return;
     }
 
@@ -52,16 +51,12 @@ class _BookAppointmentScreenState extends ConsumerState<BookAppointmentScreen> {
       );
       
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Appointment Requested successfully!')),
-        );
+        CustomToast.showSuccess(context, 'Appointment booked successfully!');
         context.pop();
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to book: $e')),
-        );
+        CustomToast.showError(context, 'Failed to book appointment');
       }
     } finally {
       if (mounted) {

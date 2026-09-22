@@ -4,6 +4,10 @@ import '../../../core/constants/colors.dart';
 import '../../../core/utils/pdf_generator.dart';
 import '../../providers/clinic_provider.dart';
 
+import '../../widgets/premium_background.dart';
+import '../../widgets/app_header.dart';
+import '../../../presentation/widgets/custom_toast.dart';
+
 class StaffAnalyticsScreen extends ConsumerWidget {
   const StaffAnalyticsScreen({super.key});
 
@@ -14,19 +18,27 @@ class StaffAnalyticsScreen extends ConsumerWidget {
     final analyticsAsync = ref.watch(dailyAnalyticsProvider(dateStr));
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Pharmacy & Analytics"),
-      ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          ref.invalidate(dailyAnalyticsProvider(dateStr));
-        },
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
+      extendBodyBehindAppBar: true,
+      backgroundColor: AppColors.background,
+      body: PremiumBackground(
+        child: RefreshIndicator(
+          onRefresh: () async {
+            ref.invalidate(dailyAnalyticsProvider(dateStr));
+          },
+          child: CustomScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            slivers: [
+              const SliverToBoxAdapter(
+                child: AppHeader(
+                  title: "Pharmacy & Analytics",
+                ),
+              ),
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                sliver: SliverToBoxAdapter(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
               const Text(
                 "Daily Analytics",
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -65,9 +77,7 @@ class StaffAnalyticsScreen extends ConsumerWidget {
               // PDF Generation
               OutlinedButton.icon(
                 onPressed: () async {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Preparing Daily Summary PDF...')),
-                  );
+                  CustomToast.showSuccess(context, 'Exporting Analytics Data...');
                   await PdfGenerator.generateAndPrintDailyReport();
                 },
                 icon: const Icon(Icons.picture_as_pdf, color: AppColors.primaryPlum),
@@ -79,6 +89,13 @@ class StaffAnalyticsScreen extends ConsumerWidget {
                 ),
               ),
 
+                    ],
+                  ),
+                ),
+              ),
+              const SliverToBoxAdapter(
+                child: SizedBox(height: 120),
+              ),
             ],
           ),
         ),

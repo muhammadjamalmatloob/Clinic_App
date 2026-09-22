@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/constants/colors.dart';
 
+import '../../widgets/floating_bottom_nav.dart';
+
 class StaffShell extends StatelessWidget {
   final Widget child;
   const StaffShell({super.key, required this.child});
@@ -12,39 +14,26 @@ class StaffShell extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: child,
-      extendBody: true,
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.primaryPlum.withValues(alpha: 0.12),
-              blurRadius: 25,
-              offset: const Offset(0, -5), // Shadow upwards
+      body: Stack(
+        children: [
+          child,
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: FloatingBottomNav(
+              currentIndex: currentIndex,
+              onTap: (int idx) => _onItemTapped(idx, context),
+              items: const [
+                FloatingNavItem(icon: Icons.control_camera, label: 'Control'),
+                FloatingNavItem(icon: Icons.desk, label: 'Desk'),
+                FloatingNavItem(icon: Icons.analytics, label: 'Analytics'),
+              ],
             ),
-          ],
-        ),
-        child: SafeArea(
-          child: BottomNavigationBar(
-            currentIndex: currentIndex,
-            onTap: (int idx) => _onItemTapped(idx, context),
-            selectedItemColor: AppColors.primaryPlum,
-            unselectedItemColor: AppColors.textSecondary,
-            backgroundColor: Colors.white,
-            showSelectedLabels: true,
-            showUnselectedLabels: true,
-            selectedFontSize: 12,
-            unselectedFontSize: 11,
-            elevation: 0,
-            items: const [
-              BottomNavigationBarItem(icon: Icon(Icons.control_camera), label: 'Control'),
-              BottomNavigationBarItem(icon: Icon(Icons.desk), label: 'Doctor Desk'),
-              BottomNavigationBarItem(icon: Icon(Icons.analytics), label: 'Analytics'),
-            ],
           ),
-        ),
+        ],
       ),
+      extendBody: true,
     );
   }
 

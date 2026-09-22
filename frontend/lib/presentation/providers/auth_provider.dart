@@ -36,6 +36,10 @@ class AuthNotifier extends Notifier<UserEntity?> {
     state = null;
   }
 
+  void updateUser(UserEntity updatedUser) {
+    state = updatedUser;
+  }
+
   Future<bool> googleSignIn() async {
     final repo = ref.read(authRepositoryProvider);
     final user = await repo.nativeGoogleSignIn();

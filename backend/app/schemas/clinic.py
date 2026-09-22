@@ -111,6 +111,8 @@ class AppointmentResponse(ORMModel):
     id: UUID
     patient_id: UUID
     dependent_id: UUID | None
+    patient_name: str | None = None
+    dependent_name: str | None = None
     service_id: UUID
     doctor_id: UUID | None
     appointment_date: date

@@ -31,9 +31,7 @@ async def chat_with_ai(request: ChatRequest):
         )
 
     try:
-        # The user requested 'gemini 3.1 flash lite', but since that does not exist in the API yet,
-        # The user specifically requested 'gemini 3.1 flash lite'. 
-        model_name = "gemini-3.1-flash-lite"
+        model_name = "gemini-3.6-flash"
         model = genai.GenerativeModel(
             model_name=model_name,
             system_instruction=SYSTEM_PROMPT

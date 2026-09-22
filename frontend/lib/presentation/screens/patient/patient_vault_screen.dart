@@ -12,6 +12,7 @@ import '../../widgets/empty_state_widget.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/medical_provider.dart';
 import '../../../domain/entities/prescription_entity.dart';
+import '../../../presentation/widgets/custom_toast.dart';
 
 class PatientVaultScreen extends ConsumerStatefulWidget {
   const PatientVaultScreen({super.key});
@@ -176,13 +177,13 @@ class _PatientVaultScreenState extends ConsumerState<PatientVaultScreen> {
           icon: const Icon(Icons.download, color: AppColors.primaryPlum),
           onPressed: () {
             HapticFeedback.lightImpact();
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Downloading $title...')));
+            CustomToast.showSuccess(context, 'Downloading document...');
             PdfGenerator.generateAndPrintMedicalRecord(title, date, 'Aisha Khan');
           },
         ),
         onTap: () {
           HapticFeedback.lightImpact();
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Opening $title...')));
+          CustomToast.showSuccess(context, 'Opening document...');
         },
       ),
     ).animate().fadeIn().slideY(begin: 0.1);

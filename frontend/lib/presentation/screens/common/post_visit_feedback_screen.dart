@@ -7,6 +7,7 @@ import '../../widgets/glass_card.dart';
 import '../../widgets/app_header.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/feedback_provider.dart';
+import '../../../presentation/widgets/custom_toast.dart';
 
 class PostVisitFeedbackScreen extends ConsumerStatefulWidget {
   const PostVisitFeedbackScreen({super.key});
@@ -33,12 +34,12 @@ class _PostVisitFeedbackScreenState extends ConsumerState<PostVisitFeedbackScree
         comment: _commentController.text.trim(),
       );
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Feedback Submitted! Thank you.')));
-        context.pop();
+        CustomToast.showSuccess(context, 'Feedback Submitted! Thank you.');
+        Navigator.pop(context);
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to submit feedback: $e')));
+        CustomToast.showError(context, 'Failed to submit feedback');
       }
     } finally {
       if (mounted) {

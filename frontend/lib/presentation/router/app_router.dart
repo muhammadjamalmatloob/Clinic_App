@@ -11,6 +11,7 @@ import '../screens/patient/patient_dashboard.dart';
 import '../screens/patient/patient_services_screen.dart';
 import '../screens/patient/patient_vault_screen.dart';
 import '../screens/patient/patient_shell.dart';
+import '../screens/patient/telehealth_screen.dart';
 import '../screens/staff/staff_dashboard.dart';
 import '../screens/staff/staff_desk_screen.dart';
 import '../screens/staff/staff_analytics_screen.dart';
@@ -24,7 +25,7 @@ import '../screens/common/post_visit_feedback_screen.dart';
 import '../screens/patient/book_appointment_screen.dart';
 import '../screens/patient/cost_estimator_screen.dart';
 import '../screens/patient/ai_symptom_checker_screen.dart';
-import '../screens/staff/add_admin_screen.dart';
+
 import '../screens/staff/broadcast_announcement_screen.dart';
 import '../screens/staff/calendar_schedule_screen.dart';
 
@@ -98,10 +99,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       path: '/profile/feedback',
       builder: (context, state) => const PostVisitFeedbackScreen(),
     ),
-    GoRoute(
-      path: '/profile/add_admin',
-      builder: (context, state) => const AddAdminScreen(),
-    ),
+
     GoRoute(
       path: '/staff/broadcast',
       builder: (context, state) => const BroadcastAnnouncementScreen(),
@@ -138,6 +136,10 @@ final routerProvider = Provider<GoRouter>((ref) {
         GoRoute(
           path: '/patient/vault',
           builder: (context, state) => const PatientVaultScreen(),
+        ),
+        GoRoute(
+          path: '/patient/telehealth',
+          builder: (context, state) => const TelehealthScreen(),
         ),
       ],
     ),

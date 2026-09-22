@@ -24,7 +24,8 @@ class PatientServicesScreen extends ConsumerWidget {
               title: 'Services & Booking',
             ),
             Expanded(
-              child: Padding(
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
                 padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -37,89 +38,84 @@ class PatientServicesScreen extends ConsumerWidget {
                   color: AppColors.primaryPlum,
                 ),
               ).animate().fadeIn().slideX(begin: -0.1),
-              const SizedBox(height: 16),
+              const SizedBox(height: 24),
 
               // Action Buttons
-              Expanded(
-                flex: 4,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        context.push('/patient/book');
-                      },
-                      icon: const Icon(Icons.calendar_month),
-                      label: const Text('Book Advance Appointment', style: TextStyle(fontSize: 15)),
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        backgroundColor: AppColors.primaryPlum,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                      ),
-                    ).animate().fadeIn(delay: 100.ms).scale(),
-                    
-                    OutlinedButton.icon(
-                      onPressed: () {
-                        context.push('/patient/cost');
-                      },
-                      icon: const Icon(Icons.calculate, color: AppColors.primaryPlum),
-                      label: const Text('Procedure Cost Estimator', style: TextStyle(fontSize: 15, color: AppColors.primaryPlum)),
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: AppColors.primaryPlum),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                      ),
-                    ).animate().fadeIn(delay: 200.ms),
-                    
-                    OutlinedButton.icon(
-                      onPressed: () {
-                        context.push('/patient/ai');
-                      },
-                      icon: const Icon(Icons.medical_information, color: AppColors.primaryPink),
-                      label: const Text('AI Symptom Checker', style: TextStyle(fontSize: 15, color: AppColors.primaryPink)),
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: AppColors.primaryPink),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                      ),
-                    ).animate().fadeIn(delay: 300.ms),
-                  ],
-                ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      context.push('/patient/book');
+                    },
+                    icon: const Icon(Icons.calendar_month),
+                    label: const Text('Book Advance Appointment', style: TextStyle(fontSize: 15)),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      backgroundColor: AppColors.primaryPlum,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    ),
+                  ).animate().fadeIn(delay: 100.ms).scale(),
+                  const SizedBox(height: 12),
+                  
+                  OutlinedButton.icon(
+                    onPressed: () {
+                      context.push('/patient/cost');
+                    },
+                    icon: const Icon(Icons.calculate, color: AppColors.primaryPlum),
+                    label: const Text('Procedure Cost Estimator', style: TextStyle(fontSize: 15, color: AppColors.primaryPlum)),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: AppColors.primaryPlum),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    ),
+                  ).animate().fadeIn(delay: 200.ms),
+                  const SizedBox(height: 12),
+                  
+                  OutlinedButton.icon(
+                    onPressed: () {
+                      context.push('/patient/ai');
+                    },
+                    icon: const Icon(Icons.medical_information, color: AppColors.primaryPink),
+                    label: const Text('AI Symptom Checker', style: TextStyle(fontSize: 15, color: AppColors.primaryPink)),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: AppColors.primaryPink),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    ),
+                  ).animate().fadeIn(delay: 300.ms),
+                ],
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 32),
               
               // Services List
-              Expanded(
-                flex: 5,
-                child: ref.watch(servicesProvider).when(
-                  loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primaryPlum)),
-                  error: (error, _) => Center(child: Text('Error loading services: $error')),
-                  data: (services) {
-                    return ListView.builder(
-                      physics: const BouncingScrollPhysics(),
-                      clipBehavior: Clip.none,
-                      itemCount: services.length + 1, // +1 for bottom padding
-                      itemBuilder: (context, index) {
-                        if (index == services.length) {
-                          return const SizedBox(height: 120);
-                        }
-                        final service = services[index];
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: _buildServiceCard(
-                            context,
-                            service.name,
-                            service.description ?? 'Available today',
-                            Icons.local_hospital,
-                            const Color(0xFFF0FDF4),
-                            const Color(0xFF16A34A),
-                          ),
-                        ).animate().fadeIn(delay: (400 + (index * 100)).ms).slideY(begin: 0.1);
-                      },
-                    );
-                  },
-                ),
+              ref.watch(servicesProvider).when(
+                loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primaryPlum)),
+                error: (error, _) => Center(child: Text('Error loading services: $error')),
+                data: (services) {
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: services.length + 1, // +1 for bottom padding
+                    itemBuilder: (context, index) {
+                      if (index == services.length) {
+                        return const SizedBox(height: 120);
+                      }
+                      final service = services[index];
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: _buildServiceCard(
+                          context,
+                          service.name,
+                          service.description ?? 'Available today',
+                          Icons.local_hospital,
+                          const Color(0xFFF0FDF4),
+                          const Color(0xFF16A34A),
+                        ),
+                      ).animate().fadeIn(delay: (400 + (index * 100)).ms).slideY(begin: 0.1);
+                    },
+                  );
+                },
               ),
             ],
           ),

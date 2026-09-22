@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/colors.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/clinic_provider.dart';
+import '../../../presentation/widgets/custom_toast.dart';
 
 class BroadcastAnnouncementScreen extends ConsumerStatefulWidget {
   const BroadcastAnnouncementScreen({super.key});
@@ -29,16 +30,12 @@ class _BroadcastAnnouncementScreenState extends ConsumerState<BroadcastAnnouncem
       );
       
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Announcement broadcasted successfully!')),
-        );
+        CustomToast.showSuccess(context, 'Announcement sent successfully');
         Navigator.of(context).pop();
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to broadcast: $e')),
-        );
+        CustomToast.showError(context, 'Failed to send announcement');
       }
     } finally {
       if (mounted) {

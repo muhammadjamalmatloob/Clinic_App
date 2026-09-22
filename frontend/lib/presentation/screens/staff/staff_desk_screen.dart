@@ -7,6 +7,10 @@ import '../../providers/medical_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/patients_provider.dart';
 
+import '../../widgets/premium_background.dart';
+import '../../widgets/app_header.dart';
+import '../../../presentation/widgets/custom_toast.dart';
+
 class StaffDeskScreen extends ConsumerStatefulWidget {
   const StaffDeskScreen({super.key});
 
@@ -22,20 +26,29 @@ class _StaffDeskScreenState extends ConsumerState<StaffDeskScreen> {
     final appointmentsAsync = ref.watch(appointmentsProvider(dateStr));
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Doctor's Desk"),
-      ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          ref.invalidate(appointmentsProvider(dateStr));
-        },
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Calendar View Header
+      extendBodyBehindAppBar: true,
+      backgroundColor: AppColors.background,
+      body: PremiumBackground(
+        child: RefreshIndicator(
+          onRefresh: () async {
+            ref.invalidate(appointmentsProvider(dateStr));
+          },
+          child: CustomScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            slivers: [
+              const SliverToBoxAdapter(
+                child: AppHeader(
+                  title: "Doctor's Desk",
+                  subtitle: "Manage consultations",
+                ),
+              ),
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                sliver: SliverToBoxAdapter(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Calendar View Header
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -76,7 +89,9 @@ class _StaffDeskScreenState extends ConsumerState<StaffDeskScreen> {
                         final apt = appointments[index];
                         return _buildScheduleItem(
                           apt.appointmentTime,
-                          'Patient ID: ${apt.patientId.substring(0, 8)}',
+                          apt.patientName != null 
+                              ? 'Patient: ${apt.patientName}' 
+                              : 'Patient ID: ${apt.patientId.substring(0, 8)}',
                           apt.status.toUpperCase(),
                           AppColors.primaryPlum,
                         );
@@ -97,7 +112,11 @@ class _StaffDeskScreenState extends ConsumerState<StaffDeskScreen> {
               
               // Digital Prescription Form
               const _PrescriptionForm(),
-              const SizedBox(height: 80), // Padding to prevent overlap with bottom nav bar
+              const SizedBox(height: 120),
+                    ],
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -158,9 +177,7 @@ class _PrescriptionFormState extends ConsumerState<_PrescriptionForm> {
 
   void _submit() async {
     if (_selectedPatientId == null || _items.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a Patient and add at least one medication.')),
-      );
+      CustomToast.showError(context, 'Please select a patient and add items');
       return;
     }
 
@@ -187,9 +204,7 @@ class _PrescriptionFormState extends ConsumerState<_PrescriptionForm> {
       );
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Prescription Saved & Sent to Pharmacy!')),
-        );
+        CustomToast.showSuccess(context, 'Prescription saved successfully');
         setState(() {
           _selectedPatientId = null;
           _notesController.clear();
@@ -198,6 +213,7 @@ class _PrescriptionFormState extends ConsumerState<_PrescriptionForm> {
       }
     } catch (e) {
       if (mounted) {
+        CustomToast.showError(context, 'Failed to save prescription: $e');
         // Show the error dialog so it doesn't get missed
         showDialog(
           context: context,

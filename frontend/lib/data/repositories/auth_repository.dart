@@ -92,10 +92,13 @@ class AuthRepository {
 
   Future<UserEntity?> updateProfile(String profileId, String name, String phone) async {
     try {
-      final response = await apiClient.dio.patch('/profiles/$profileId', data: {
-        'full_name': name,
-        'phone_number': phone,
-      });
+      final response = await apiClient.dio.patch('/profiles/me', 
+        queryParameters: {'profile_id': profileId},
+        data: {
+          'full_name': name,
+          'phone_number': phone,
+        }
+      );
       if (response.statusCode == 200) {
         return UserEntity.fromJson(response.data);
       }

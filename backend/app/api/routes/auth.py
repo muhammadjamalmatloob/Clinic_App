@@ -7,7 +7,13 @@ from sqlalchemy.exc import IntegrityError
 from app.core.config import settings
 from app.db.session import get_session
 from app.models import Profile
-from app.schemas.auth import GoogleLoginRequest, LoginRequest, RegisterRequest
+from app.schemas.auth import (
+    GoogleLoginRequest,
+    LoginRequest,
+    RegisterRequest,
+    ResetPasswordRequest,
+    UpdatePasswordRequest,
+)
 
 router = APIRouter()
 bearer_scheme = HTTPBearer(auto_error=False)

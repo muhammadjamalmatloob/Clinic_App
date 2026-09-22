@@ -3,20 +3,31 @@ import 'package:flutter/services.dart';
 import 'dart:ui';
 import '../../../core/constants/colors.dart';
 
+class FloatingNavItem {
+  final IconData icon;
+  final String label;
+
+  const FloatingNavItem({required this.icon, required this.label});
+}
+
 class FloatingBottomNav extends StatelessWidget {
   final int currentIndex;
   final Function(int) onTap;
+  final List<FloatingNavItem> items;
 
   const FloatingBottomNav({
     super.key,
     required this.currentIndex,
     required this.onTap,
+    required this.items,
   });
 
   @override
   Widget build(BuildContext context) {
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
+    
     return Padding(
-      padding: const EdgeInsets.only(left: 20, right: 20, bottom: 12),
+      padding: EdgeInsets.only(left: 20, right: 20, bottom: 12 + bottomPadding),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(30),
         child: BackdropFilter(
@@ -30,22 +41,12 @@ class FloatingBottomNav extends StatelessWidget {
                 color: Colors.white.withValues(alpha: 0.5),
                 width: 1.5,
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.primaryPlum.withValues(alpha: 0.1),
-                  blurRadius: 20,
-                  offset: const Offset(0, 10),
-                ),
-              ],
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildNavItem(0, Icons.queue, 'Queue'),
-                _buildNavItem(1, Icons.medical_services, 'Services'),
-                _buildNavItem(2, Icons.smart_toy, 'AI'),
-                _buildNavItem(3, Icons.folder_shared, 'Vault'),
-              ],
+              children: List.generate(items.length, (index) {
+                return _buildNavItem(index, items[index].icon, items[index].label);
+              }),
             ),
           ),
         ),
@@ -66,7 +67,6 @@ class FloatingBottomNav extends StatelessWidget {
         curve: Curves.easeOutCubic,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primaryPlum.withValues(alpha: 0.1) : Colors.transparent,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Column(

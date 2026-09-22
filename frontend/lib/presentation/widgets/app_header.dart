@@ -6,7 +6,7 @@ class AppHeader extends StatelessWidget {
   final String? subtitle;
   final Widget? trailing;
   final Widget? leading;
-  final double height;
+  final double? height;
   final EdgeInsetsGeometry padding;
 
   const AppHeader({
@@ -15,8 +15,8 @@ class AppHeader extends StatelessWidget {
     this.subtitle,
     this.trailing,
     this.leading,
-    this.height = 140,
-    this.padding = const EdgeInsets.only(left: 20, right: 20, top: 60, bottom: 20),
+    this.height,
+    this.padding = const EdgeInsets.only(left: 20, right: 20, top: 40, bottom: 20),
   });
 
   @override
@@ -57,6 +57,7 @@ class AppHeader extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 if (subtitle != null)
                   Text(

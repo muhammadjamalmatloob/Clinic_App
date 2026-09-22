@@ -38,3 +38,11 @@ class Appointment(TimestampMixin, Base):
     service: Mapped["Service"] = relationship(back_populates="appointments")
     medical_records: Mapped[list["MedicalRecord"]] = relationship(back_populates="appointment")
     prescriptions: Mapped[list["Prescription"]] = relationship(back_populates="appointment")
+
+    @property
+    def patient_name(self) -> str | None:
+        return self.patient.full_name if self.patient else None
+
+    @property
+    def dependent_name(self) -> str | None:
+        return self.dependent.full_name if self.dependent else None

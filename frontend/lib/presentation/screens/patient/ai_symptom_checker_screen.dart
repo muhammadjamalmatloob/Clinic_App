@@ -8,6 +8,7 @@ import '../../widgets/glass_card.dart';
 import '../../widgets/app_header.dart';
 import '../../../domain/entities/ai_entity.dart';
 import '../../providers/ai_provider.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 
 class AiSymptomCheckerScreen extends ConsumerStatefulWidget {
   const AiSymptomCheckerScreen({super.key});
@@ -118,14 +119,27 @@ class _AiSymptomCheckerScreenState extends ConsumerState<AiSymptomCheckerScreen>
                         child: GlassCard(
                           borderRadius: 20,
                           padding: const EdgeInsets.all(16),
-                          child: Text(
-                            msg.content,
-                            style: TextStyle(
-                              color: isUser ? AppColors.primaryPlum : AppColors.textPrimary,
-                              fontWeight: isUser ? FontWeight.w600 : FontWeight.normal,
-                              fontSize: 15,
-                            ),
-                          ),
+                          child: isUser 
+                            ? Text(
+                                msg.content,
+                                style: const TextStyle(
+                                  color: AppColors.primaryPlum,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 15,
+                                ),
+                              )
+                            : MarkdownBody(
+                                data: msg.content,
+                                selectable: true,
+                                styleSheet: MarkdownStyleSheet(
+                                  p: const TextStyle(color: AppColors.textPrimary, fontSize: 15),
+                                  h1: const TextStyle(color: AppColors.textPrimary, fontSize: 22, fontWeight: FontWeight.bold),
+                                  h2: const TextStyle(color: AppColors.textPrimary, fontSize: 20, fontWeight: FontWeight.bold),
+                                  h3: const TextStyle(color: AppColors.textPrimary, fontSize: 18, fontWeight: FontWeight.bold),
+                                  strong: const TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold),
+                                  listBullet: const TextStyle(color: AppColors.textPrimary),
+                                ),
+                              ),
                         ).animate().fadeIn(duration: 300.ms).slideY(begin: 0.1),
                       ),
                     );

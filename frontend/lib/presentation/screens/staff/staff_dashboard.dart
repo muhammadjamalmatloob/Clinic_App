@@ -40,8 +40,6 @@ class StaffDashboard extends ConsumerWidget {
                   icon: const Icon(Icons.settings, color: Colors.white),
                   onPressed: () => context.push('/profile'),
                 ),
-                height: 140,
-                padding: const EdgeInsets.only(left: 20, right: 20, top: 60, bottom: 20),
               ),
             ),
           SliverToBoxAdapter(
@@ -174,9 +172,12 @@ class StaffDashboard extends ConsumerWidget {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, stack) => Center(child: Text('Failed to load queue: $e')),
       ),
-    ),
-  ],
-),
+      ),
+      const SliverToBoxAdapter(
+        child: SizedBox(height: 120),
+      ),
+    ],
+  ),
       ),
     );
   }

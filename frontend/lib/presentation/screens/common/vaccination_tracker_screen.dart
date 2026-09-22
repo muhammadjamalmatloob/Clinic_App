@@ -9,6 +9,7 @@ import '../../providers/dependent_provider.dart';
 import '../../providers/vaccination_provider.dart';
 import '../../../domain/entities/dependent_entity.dart';
 import '../../../domain/entities/vaccination_entity.dart';
+import '../../../presentation/widgets/custom_toast.dart';
 
 class VaccinationTrackerScreen extends ConsumerStatefulWidget {
   const VaccinationTrackerScreen({super.key});
@@ -22,7 +23,7 @@ class _VaccinationTrackerScreenState extends ConsumerState<VaccinationTrackerScr
 
   void _showAddVaccinationForm(BuildContext context, List<DependentEntity> dependents) {
     if (dependents.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please add a dependent first in Manage Dependents.')));
+      CustomToast.showError(context, 'Please add a dependent first');
       return;
     }
 
@@ -73,7 +74,7 @@ class _VaccinationTrackerScreenState extends ConsumerState<VaccinationTrackerScr
                   ElevatedButton(
                     onPressed: isSubmitting ? null : () async {
                       if (nameController.text.trim().isEmpty || localSelectedDepId == null) {
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('All fields are required')));
+                        CustomToast.showError(context, 'All fields are required');
                         return;
                       }
 
@@ -93,11 +94,11 @@ class _VaccinationTrackerScreenState extends ConsumerState<VaccinationTrackerScr
                         
                         if (mounted) {
                           Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Vaccination Added!')));
+                          CustomToast.showSuccess(context, 'Vaccination Added!');
                         }
                       } catch (e) {
                         if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed: $e')));
+                          CustomToast.showError(context, 'Failed to add vaccination');
                         }
                       } finally {
                         if (mounted) {
@@ -130,11 +131,11 @@ class _VaccinationTrackerScreenState extends ConsumerState<VaccinationTrackerScr
       await ref.read(vaccinationRepositoryProvider).markVaccinationCompleted(vaccinationId, DateTime.now());
       ref.invalidate(dependentVaccinationsProvider(dependentId));
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Marked as Completed')));
+        CustomToast.showSuccess(context, 'Marked as Completed');
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed: $e')));
+        CustomToast.showError(context, 'Failed: $e');
       }
     }
   }

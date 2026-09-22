@@ -60,7 +60,9 @@ class _CalendarScheduleScreenState extends ConsumerState<CalendarScheduleScreen>
                 return Column(
                   children: appointments.map((apt) => _buildAppointmentCard(
                     apt.appointmentTime,
-                    'Patient ID: ${apt.patientId.substring(0, 8)}...',
+                    apt.patientName != null 
+                        ? 'Patient: ${apt.patientName}' 
+                        : 'Patient ID: ${apt.patientId.substring(0, 8)}...',
                     'Status: ${apt.status.toUpperCase()}',
                     AppColors.primaryPlum,
                   )).toList(),

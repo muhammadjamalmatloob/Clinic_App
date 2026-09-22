@@ -24,6 +24,12 @@ class PatientShell extends StatelessWidget {
             child: FloatingBottomNav(
               currentIndex: currentIndex,
               onTap: (int idx) => _onItemTapped(idx, context),
+              items: const [
+                FloatingNavItem(icon: Icons.queue, label: 'Queue'),
+                FloatingNavItem(icon: Icons.medical_services, label: 'Services'),
+                FloatingNavItem(icon: Icons.smart_toy, label: 'AI'),
+                FloatingNavItem(icon: Icons.folder_shared, label: 'Vault'),
+              ],
             ),
           ),
         ],

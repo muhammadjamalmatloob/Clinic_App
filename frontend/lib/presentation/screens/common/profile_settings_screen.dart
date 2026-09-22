@@ -6,6 +6,7 @@ import '../../../domain/entities/user_entity.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/premium_background.dart';
 import '../../widgets/app_header.dart';
+import '../../../presentation/widgets/custom_toast.dart';
 
 class ProfileSettingsScreen extends ConsumerStatefulWidget {
   const ProfileSettingsScreen({super.key});
@@ -84,19 +85,14 @@ class _ProfileSettingsScreenState extends ConsumerState<ProfileSettingsScreen> {
       
       if (mounted) {
         if (updatedUser != null) {
-          // Force a reload of the profile (authProvider would need invalidation ideally)
-          // For now, we just show success. In a real app we'd update authProvider state.
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(_isUrdu ? 'پروفائل کو اپ ڈیٹ کر دیا گیا' : 'Profile updated successfully!')),
-          );
+          ref.read(authProvider.notifier).updateUser(updatedUser);
+          CustomToast.showSuccess(context, _isUrdu ? 'پروفائل کو اپ ڈیٹ کر دیا گیا' : 'Profile updated successfully!');
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Failed to update profile')),
-          );
+          CustomToast.showError(context, _isUrdu ? 'پروفائل اپ ڈیٹ کرنے میں ناکامی' : 'Failed to update profile');
         }
       }
     } catch (e) {
-       if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+       if (mounted) CustomToast.showError(context, _isUrdu ? 'پروفائل اپ ڈیٹ کرتے وقت خرابی' : 'Error updating profile');
     } finally {
        if (mounted) setState(() => _isSaving = false);
     }
@@ -271,22 +267,7 @@ class _ProfileSettingsScreenState extends ConsumerState<ProfileSettingsScreen> {
               ),
             ],
             
-            if (user?.role == UserRole.staff) ...[
-              const SizedBox(height: 24),
-              _buildSectionHeader(t('Admin Controls')),
-              Card(
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                child: ListTile(
-                  leading: const Icon(Icons.admin_panel_settings, color: AppColors.primaryPlum),
-                  title: Text(t('Add New Admin')),
-                  subtitle: Text(t('Invite a staff member')),
-                  trailing: const Icon(Icons.add_circle, color: AppColors.primaryPlum),
-                  onTap: () {
-                    context.push('/profile/add_admin');
-                  },
-                ),
-              ),
-            ],
+
 
             const SizedBox(height: 32),
             ElevatedButton.icon(
