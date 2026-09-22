@@ -108,8 +108,10 @@ class AuthRepository {
 
   Future<UserEntity?> nativeGoogleSignIn() async {
     try {
-      // Create GoogleSignIn instance
-      final GoogleSignIn googleSignIn = GoogleSignIn();
+      // Web Client ID from Google Cloud Console
+      final GoogleSignIn googleSignIn = GoogleSignIn(
+        serverClientId: '77060615579-smoqj80q0hm9pj38s7fagmu4op2fle6l.apps.googleusercontent.com',
+      );
       
       // Trigger native sign in flow
       final googleUser = await googleSignIn.signIn();
