@@ -29,7 +29,7 @@ class _SplashScreenState extends State<SplashScreen> {
         children: [
           // Background Image with Opacity
           Image.asset(
-            'lib/assets/splash.jfif',
+            'assets/splash.jfif',
             fit: BoxFit.cover,
           ),
           // Dark/Colored Overlay
@@ -62,7 +62,7 @@ class _SplashScreenState extends State<SplashScreen> {
                   ),
                   child: ClipOval(
                     child: Image.asset(
-                      'lib/assets/clinic.png',
+                      'assets/clinic.png',
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) => 
                         const Icon(Icons.local_hospital, size: 80, color: AppColors.primaryPlum),
