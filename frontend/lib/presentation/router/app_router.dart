@@ -33,8 +33,11 @@ final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(de
 final GlobalKey<NavigatorState> _patientShellNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'patientShell');
 final GlobalKey<NavigatorState> _staffShellNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'staffShell');
 
+final onboardingSeenProvider = StateProvider<bool>((ref) => false);
+
 final routerProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authProvider);
+  final hasSeenOnboarding = ref.watch(onboardingSeenProvider);
 
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
@@ -46,6 +49,19 @@ final routerProvider = Provider<GoRouter>((ref) {
       // If not logged in and not in auth flow, redirect to auth
       if (authState == null && !isAuthFlow) {
         return '/auth';
+      }
+
+      if (path == '/') {
+        return null; // Let splash screen show
+      }
+
+      // If at onboarding and not logged in, redirect based on onboarding
+      if (authState == null && path == '/onboarding') {
+        if (hasSeenOnboarding) {
+          return '/auth';
+        } else {
+          return null; // Stay on onboarding
+        }
       }
       
       // If logged in and in auth flow, redirect to appropriate dashboard

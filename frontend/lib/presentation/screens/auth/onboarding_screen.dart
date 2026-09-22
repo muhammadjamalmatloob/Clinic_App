@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/colors.dart';
+import '../../../core/local_db/database_helper.dart';
+import '../../router/app_router.dart';
 
-class OnboardingScreen extends StatefulWidget {
+class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
 
   @override
-  State<OnboardingScreen> createState() => _OnboardingScreenState();
+  ConsumerState<OnboardingScreen> createState() => _OnboardingScreenState();
 }
 
-class _OnboardingScreenState extends State<OnboardingScreen> {
+class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
@@ -130,9 +133,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   width: double.infinity,
                   height: 56,
                   child: ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
                       if (_currentPage == _onboardingData.length - 1) {
-                        context.go('/auth');
+                        await DatabaseHelper.instance.setAppSetting('has_seen_onboarding', 'true');
+                        ref.read(onboardingSeenProvider.notifier).state = true;
+                        if (context.mounted) {
+                          context.go('/auth');
+                        }
                       } else {
                         _pageController.nextPage(
                           duration: const Duration(milliseconds: 300),

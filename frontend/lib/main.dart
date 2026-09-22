@@ -7,10 +7,26 @@ import 'core/theme/app_theme.dart';
 import 'core/constants/strings.dart';
 import 'presentation/router/app_router.dart';
 
-void main() {
+import 'presentation/providers/auth_provider.dart';
+import 'core/local_db/database_helper.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  await DatabaseHelper.instance.database;
+
+  final container = ProviderContainer();
+  
+  final hasSeenOnboardingStr = await DatabaseHelper.instance.getAppSetting('has_seen_onboarding');
+  final hasSeenOnboarding = hasSeenOnboardingStr == 'true';
+  container.read(onboardingSeenProvider.notifier).state = hasSeenOnboarding;
+
+  await container.read(authProvider.notifier).loadSession();
+
   runApp(
-    const ProviderScope(
-      child: MyApp(),
+    UncontrolledProviderScope(
+      container: container,
+      child: const MyApp(),
     ),
   );
 }
