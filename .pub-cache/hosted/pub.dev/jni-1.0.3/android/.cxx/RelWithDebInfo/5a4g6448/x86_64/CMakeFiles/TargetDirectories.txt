@@ -1,3 +1,0 @@
-D:/Study/5_Fifth Semester/SPM/Pitching_Websites/Flutter Setup/.pub-cache/hosted/pub.dev/jni-1.0.3/android/.cxx/RelWithDebInfo/5a4g6448/x86_64/CMakeFiles/jni.dir
-D:/Study/5_Fifth Semester/SPM/Pitching_Websites/Flutter Setup/.pub-cache/hosted/pub.dev/jni-1.0.3/android/.cxx/RelWithDebInfo/5a4g6448/x86_64/CMakeFiles/edit_cache.dir
-D:/Study/5_Fifth Semester/SPM/Pitching_Websites/Flutter Setup/.pub-cache/hosted/pub.dev/jni-1.0.3/android/.cxx/RelWithDebInfo/5a4g6448/x86_64/CMakeFiles/rebuild_cache.dir

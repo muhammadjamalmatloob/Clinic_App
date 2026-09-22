@@ -1,5 +1,0 @@
-name: riverpod
-issueTracker: https://github.com/rrousselGit/riverpod/issues
-version: 1.0.0
-materialIconCodePoint: '0xf39f'
-requiresConnection: true  # optional field - defaults to true
