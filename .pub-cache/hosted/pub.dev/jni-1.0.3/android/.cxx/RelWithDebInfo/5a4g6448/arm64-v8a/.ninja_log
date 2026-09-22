@@ -1,0 +1,5 @@
+# ninja log v5
+25	404	8117550835970389	CMakeFiles/jni.dir/include/dart_api_dl.c.o	fa47ad0ef06e5780
+16	509	8117550836995579	CMakeFiles/jni.dir/dartjni.c.o	845d15ecb87ced59
+0	1454	8117550846462768	CMakeFiles/jni.dir/third_party/global_jni_env.c.o	7df82d6ab44ed967
+1455	1609	8117550848115136	D:/Study/5_Fifth Semester/SPM/Pitching_Websites/Flutter Setup/frontend/build/jni/intermediates/cxx/RelWithDebInfo/5a4g6448/obj/arm64-v8a/libdartjni.so	ad82320f7b1c4035
