@@ -96,6 +96,15 @@ async def _validate_queue_subject(
             )
 
 
+@router.get("/profiles", response_model=list[ProfileResponse], tags=["profiles"])
+async def get_profiles(role: str | None = None, session: AsyncSession = Depends(get_session)):
+    stmt = select(Profile)
+    if role:
+        stmt = stmt.where(Profile.role == role)
+    result = await session.execute(stmt)
+    return result.scalars().all()
+
+
 @router.get("/profiles/me", response_model=ProfileResponse, tags=["profiles"])
 async def get_profile(profile_id: UUID, session: AsyncSession = Depends(get_session)) -> Profile:
     return await _get_or_404(session, Profile, profile_id)
@@ -111,6 +120,7 @@ async def update_profile(
     await session.commit()
     await session.refresh(profile)
     return profile
+
 
 
 @router.get("/services", response_model=list[ServiceResponse], tags=["services"])
@@ -145,6 +155,7 @@ async def list_today_tokens(session: AsyncSession = Depends(get_session)) -> lis
     queue = await _get_or_create_today_queue(session)
     result = await session.scalars(
         select(QueueToken)
+        .options(selectinload(QueueToken.patient), selectinload(QueueToken.dependent))
         .where(QueueToken.queue_session_id == queue.id)
         .order_by(QueueToken.token_number)
     )
@@ -156,7 +167,11 @@ async def get_current_token(session: AsyncSession = Depends(get_session)) -> Que
     queue = await _get_or_create_today_queue(session)
     if queue.current_token_id is None:
         return None
-    return await session.get(QueueToken, queue.current_token_id)
+    return await session.scalar(
+        select(QueueToken)
+        .options(selectinload(QueueToken.patient), selectinload(QueueToken.dependent))
+        .where(QueueToken.id == queue.current_token_id)
+    )
 
 
 @router.post("/queues/today/tokens", response_model=QueueTokenResponse, status_code=status.HTTP_201_CREATED, tags=["queue"])
@@ -188,8 +203,13 @@ async def request_token(
     except IntegrityError as error:
         await session.rollback()
         raise HTTPException(status_code=409, detail="Queue token could not be created") from error
-    await session.refresh(token)
-    return token
+    
+    result = await session.scalar(
+        select(QueueToken)
+        .options(selectinload(QueueToken.patient), selectinload(QueueToken.dependent))
+        .where(QueueToken.id == token.id)
+    )
+    return result
 
 
 @router.post("/queues/today/call-next", response_model=QueueTokenResponse | None, tags=["queue"])
@@ -217,7 +237,14 @@ async def call_next_patient(session: AsyncSession = Depends(get_session)) -> Que
     else:
         queue.current_token_id = None
     await session.commit()
-    return next_token
+    
+    if queue.current_token_id:
+        return await session.scalar(
+            select(QueueToken)
+            .options(selectinload(QueueToken.patient), selectinload(QueueToken.dependent))
+            .where(QueueToken.id == queue.current_token_id)
+        )
+    return None
 
 
 @router.post("/queues/today/complete-current", response_model=QueueTokenResponse | None, tags=["queue"])
@@ -462,8 +489,13 @@ async def create_prescription(
     )
     session.add(prescription)
     await session.commit()
-    await session.refresh(prescription)
-    return prescription
+    
+    result = await session.scalar(
+        select(Prescription)
+        .options(selectinload(Prescription.items))
+        .where(Prescription.id == prescription.id)
+    )
+    return result
 
 
 @router.get("/prescriptions/{prescription_id}", response_model=PrescriptionResponse, tags=["prescriptions"])

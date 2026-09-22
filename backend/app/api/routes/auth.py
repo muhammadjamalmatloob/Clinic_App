@@ -68,7 +68,7 @@ async def register(payload: RegisterRequest, session: AsyncSession = Depends(get
             email=payload.email,
             full_name=payload.full_name,
             phone_number=payload.phone_number,
-            role="patient",
+            role=payload.role,
         )
         session.add(profile)
         try:

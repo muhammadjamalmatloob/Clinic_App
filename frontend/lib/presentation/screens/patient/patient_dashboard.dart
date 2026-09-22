@@ -12,13 +12,23 @@ import '../../../core/constants/colors.dart';
 import '../../../core/constants/strings.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/queue_provider.dart';
+import '../../providers/clinic_provider.dart';
+import '../../providers/dependent_provider.dart';
 import '../../../domain/entities/token_entity.dart';
+import '../../../domain/entities/dependent_entity.dart';
 
-class PatientDashboard extends ConsumerWidget {
+class PatientDashboard extends ConsumerStatefulWidget {
   const PatientDashboard({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<PatientDashboard> createState() => _PatientDashboardState();
+}
+
+class _PatientDashboardState extends ConsumerState<PatientDashboard> {
+  bool _isRequestingToken = false;
+
+  @override
+  Widget build(BuildContext context) {
     final user = ref.watch(authProvider);
     final currentServingAsync = ref.watch(currentServingTokenProvider);
     final queueAsync = ref.watch(queueStreamProvider);
@@ -60,6 +70,53 @@ class PatientDashboard extends ConsumerWidget {
               sliver: SliverList(
                 delegate: SliverChildListDelegate([
               
+              // Announcements Banner
+              Consumer(
+                builder: (context, ref, _) {
+                  final announcementsAsync = ref.watch(announcementsProvider('all_patients'));
+                  return announcementsAsync.when(
+                    data: (announcements) {
+                      if (announcements.isEmpty) return const SizedBox.shrink();
+                      return Column(
+                        children: announcements.map((announcement) {
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 16),
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [Colors.orange.shade400, Colors.deepOrange.shade400],
+                              ),
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(color: Colors.orange.withValues(alpha: 0.3), blurRadius: 10, offset: const Offset(0, 4)),
+                              ],
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.campaign, color: Colors.white, size: 28),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Text('CLINIC ANNOUNCEMENT', style: TextStyle(color: Colors.white70, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
+                                      const SizedBox(height: 4),
+                                      Text(announcement.message, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ).animate().fadeIn(duration: 500.ms).slideY(begin: -0.2);
+                        }).toList(),
+                      );
+                    },
+                    loading: () => const SizedBox.shrink(),
+                    error: (_, __) => const SizedBox.shrink(),
+                  );
+                },
+              ),
+
               // Currently Serving Card
               GlassCard(
                 child: Column(
@@ -115,18 +172,28 @@ class PatientDashboard extends ConsumerWidget {
               // My Token Section
               queueAsync.when(
                 data: (tokens) {
-                  final myToken = tokens.cast<TokenEntity?>().firstWhere(
-                    (t) => t?.patientId == user?.id,
-                    orElse: () => null,
-                  );
+                  final dependentsAsync = ref.watch(patientDependentsProvider);
+                  final validPatientIds = {user?.id};
+                  if (dependentsAsync.value != null) {
+                    validPatientIds.addAll(dependentsAsync.value!.map((d) => d.id));
+                  }
 
-                  if (myToken == null) {
-                    return ElevatedButton.icon(
+                  // Find ALL active tokens belonging to the user or their dependents
+                  final myTokens = tokens.where(
+                    (t) => validPatientIds.contains(t.patientId) && 
+                           (t.status == TokenStatus.waiting || t.status == TokenStatus.serving),
+                  ).toList();
+
+                  if (myTokens.isEmpty) {
+                    return _isRequestingToken || dependentsAsync.isLoading
+                      ? const Center(child: CircularProgressIndicator(color: AppColors.primaryPlum))
+                      : ElevatedButton.icon(
                       onPressed: () {
-                        ref.read(queueRepositoryProvider).requestToken(
-                          user?.id ?? 'unknown',
-                          user?.name ?? 'Unknown',
-                        );
+                        if (dependentsAsync.hasError) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to load dependents: ${dependentsAsync.error}')));
+                          return;
+                        }
+                        _showRequestTokenDialog(context, user!.id, user.name, dependentsAsync.value ?? []);
                       },
                       icon: const Icon(Icons.confirmation_num),
                       label: const Text(AppStrings.requestToken, style: TextStyle(fontSize: 18)),
@@ -137,80 +204,86 @@ class PatientDashboard extends ConsumerWidget {
                     ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.1, end: 0, curve: Curves.easeOut);
                   }
 
-                  return GlassCard(
-                    child: Column(
-                      children: [
-                        const Text(
-                          AppStrings.yourToken,
-                          style: TextStyle(color: AppColors.textSecondary, fontSize: 16),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          '${myToken.tokenNumber}',
-                          style: const TextStyle(
-                            color: AppColors.primaryPlum,
-                            fontSize: 48,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 16.0),
-                          child: Divider(height: 1, color: AppColors.background),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  // Show all active tokens
+                  return Column(
+                    children: myTokens.map((myToken) => Padding(
+                      padding: const EdgeInsets.only(bottom: 16.0),
+                      child: GlassCard(
+                        child: Column(
                           children: [
-                            const Text('Estimated Wait', style: TextStyle(fontSize: 16, color: AppColors.textPrimary)),
+                            const Text(
+                              AppStrings.yourToken,
+                              style: TextStyle(color: AppColors.textSecondary, fontSize: 16),
+                            ),
+                            const SizedBox(height: 8),
                             Text(
-                              '${myToken.estimatedWaitTimeMinutes} mins',
+                              '${myToken.tokenNumber}',
                               style: const TextStyle(
+                                color: AppColors.primaryPlum,
+                                fontSize: 48,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 18,
-                                color: AppColors.primaryPink,
                               ),
                             ),
+                            const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 16.0),
+                              child: Divider(height: 1, color: AppColors.background),
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text('Estimated Wait', style: TextStyle(fontSize: 16, color: AppColors.textPrimary)),
+                                Text(
+                                  '${myToken.estimatedWaitTimeMinutes} mins',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18,
+                                    color: AppColors.primaryPink,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text('Status', style: TextStyle(fontSize: 16, color: AppColors.textPrimary)),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                  decoration: BoxDecoration(
+                                    color: myToken.status == TokenStatus.serving ? Colors.green.shade50 : Colors.orange.shade50,
+                                    borderRadius: BorderRadius.circular(20),
+                                    border: Border.all(color: myToken.status == TokenStatus.serving ? Colors.green.shade200 : Colors.orange.shade200),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Container(
+                                        width: 8, 
+                                        height: 8, 
+                                        decoration: BoxDecoration(
+                                          color: myToken.status == TokenStatus.serving ? Colors.green : Colors.orange, 
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        myToken.status.name.toUpperCase(),
+                                        style: TextStyle(
+                                          color: myToken.status == TokenStatus.serving ? Colors.green.shade700 : Colors.orange.shade700, 
+                                          fontWeight: FontWeight.bold, 
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            )
                           ],
                         ),
-                        const SizedBox(height: 16),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text('Status', style: TextStyle(fontSize: 16, color: AppColors.textPrimary)),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                              decoration: BoxDecoration(
-                                color: myToken.status == TokenStatus.serving ? Colors.green.shade50 : Colors.orange.shade50,
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(color: myToken.status == TokenStatus.serving ? Colors.green.shade200 : Colors.orange.shade200),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Container(
-                                    width: 8, 
-                                    height: 8, 
-                                    decoration: BoxDecoration(
-                                      color: myToken.status == TokenStatus.serving ? Colors.green : Colors.orange, 
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 6),
-                                  Text(
-                                    myToken.status.name.toUpperCase(),
-                                    style: TextStyle(
-                                      color: myToken.status == TokenStatus.serving ? Colors.green.shade700 : Colors.orange.shade700, 
-                                      fontWeight: FontWeight.bold, 
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        )
-                      ],
-                    ),
-                  ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.1, end: 0, curve: Curves.easeOut);
+                      ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.1, end: 0, curve: Curves.easeOut),
+                    )).toList(),
+                  );
                 },
                 loading: () => const Center(child: CircularProgressIndicator()),
                 error: (_, __) => const Center(child: Text('Failed to load queue')),
@@ -340,4 +413,82 @@ class PatientDashboard extends ConsumerWidget {
 ),
 );
 }
+
+  Future<void> _showRequestTokenDialog(BuildContext context, String userId, String userName, List<DependentEntity> dependents) async {
+    String selectedId = userId;
+    String selectedName = userName;
+
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text('Request Token For', style: TextStyle(color: AppColors.primaryPlum)),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  RadioListTile<String>(
+                    title: const Text('Myself'),
+                    value: userId,
+                    groupValue: selectedId,
+                    activeColor: AppColors.primaryPlum,
+                    onChanged: (val) {
+                      setState(() {
+                        selectedId = val!;
+                        selectedName = userName;
+                      });
+                    },
+                  ),
+                  ...dependents.map((d) => RadioListTile<String>(
+                    title: Text(d.fullName),
+                    subtitle: Text(d.relationshipType),
+                    value: d.id,
+                    groupValue: selectedId,
+                    activeColor: AppColors.primaryPlum,
+                    onChanged: (val) {
+                      setState(() {
+                        selectedId = val!;
+                        selectedName = d.fullName;
+                      });
+                    },
+                  )),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context, true);
+                  },
+                  style: ElevatedButton.styleFrom(backgroundColor: AppColors.primaryPlum),
+                  child: const Text('Request'),
+                ),
+              ],
+            );
+          }
+        );
+      }
+    ).then((confirmed) async {
+      if (confirmed == true) {
+        if (mounted) this.setState(() => _isRequestingToken = true);
+        try {
+          final queueRepo = ref.read(queueRepositoryProvider);
+          
+          String pId = userId;
+          String? dId = selectedId != userId ? selectedId : null;
+          
+          await queueRepo.requestToken(pId, dId, selectedName);
+          if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Token Requested!')));
+        } catch (e) {
+          if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed: $e')));
+        } finally {
+          if (mounted) this.setState(() => _isRequestingToken = false);
+        }
+      }
+    });
+  }
 }

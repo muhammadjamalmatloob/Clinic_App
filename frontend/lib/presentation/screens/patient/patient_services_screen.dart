@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../../core/constants/colors.dart';
 import '../../widgets/premium_background.dart';
 import '../../widgets/glass_card.dart';
 import '../../widgets/app_header.dart';
+import '../../providers/appointment_provider.dart';
 
-class PatientServicesScreen extends StatelessWidget {
+class PatientServicesScreen extends ConsumerWidget {
   const PatientServicesScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       extendBodyBehindAppBar: true,
       backgroundColor: AppColors.background,
@@ -90,16 +92,33 @@ class PatientServicesScreen extends StatelessWidget {
               // Services List
               Expanded(
                 flex: 5,
-                child: ListView(
-                  physics: const BouncingScrollPhysics(),
-                  clipBehavior: Clip.none,
-                  children: [
-                    Padding(padding: const EdgeInsets.only(bottom: 12), child: _buildServiceCard(context, 'General Health', 'Available today', Icons.favorite, const Color(0xFFFFF1F2), const Color(0xFFE11D48))).animate().fadeIn(delay: 400.ms).slideY(begin: 0.1),
-                    Padding(padding: const EdgeInsets.only(bottom: 12), child: _buildServiceCard(context, "Women's Care", 'Dr. Rukhsana', Icons.pregnant_woman, const Color(0xFFF5F3FF), const Color(0xFF7C3AED))).animate().fadeIn(delay: 500.ms).slideY(begin: 0.1),
-                    Padding(padding: const EdgeInsets.only(bottom: 12), child: _buildServiceCard(context, 'Child Care', 'Pediatrics', Icons.child_care, const Color(0xFFFFFBEB), const Color(0xFFD97706))).animate().fadeIn(delay: 600.ms).slideY(begin: 0.1),
-                    Padding(padding: const EdgeInsets.only(bottom: 12), child: _buildServiceCard(context, 'Ultrasound', 'Radiology', Icons.monitor_heart, const Color(0xFFF0FDF4), const Color(0xFF16A34A))).animate().fadeIn(delay: 700.ms).slideY(begin: 0.1),
-                    const SizedBox(height: 120), // padding for floating bottom nav inside list
-                  ],
+                child: ref.watch(servicesProvider).when(
+                  loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primaryPlum)),
+                  error: (error, _) => Center(child: Text('Error loading services: $error')),
+                  data: (services) {
+                    return ListView.builder(
+                      physics: const BouncingScrollPhysics(),
+                      clipBehavior: Clip.none,
+                      itemCount: services.length + 1, // +1 for bottom padding
+                      itemBuilder: (context, index) {
+                        if (index == services.length) {
+                          return const SizedBox(height: 120);
+                        }
+                        final service = services[index];
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: _buildServiceCard(
+                            context,
+                            service.name,
+                            service.description ?? 'Available today',
+                            Icons.local_hospital,
+                            const Color(0xFFF0FDF4),
+                            const Color(0xFF16A34A),
+                          ),
+                        ).animate().fadeIn(delay: (400 + (index * 100)).ms).slideY(begin: 0.1);
+                      },
+                    );
+                  },
                 ),
               ),
             ],

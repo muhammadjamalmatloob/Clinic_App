@@ -6,6 +6,7 @@ class RegisterRequest(BaseModel):
     password: str
     full_name: str
     phone_number: str
+    role: str = "patient"
 
 
 class LoginRequest(BaseModel):
