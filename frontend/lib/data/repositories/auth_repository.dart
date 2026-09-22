@@ -57,10 +57,20 @@ class AuthRepository {
           return await getProfile(token);
         }
       }
-      return null;
+      throw Exception('Invalid login response');
+    } on DioException catch (e) {
+      if (e.response != null && e.response?.data != null) {
+        final data = e.response?.data;
+        if (data is Map && data.containsKey('detail')) {
+          throw Exception(data['detail'].toString());
+        }
+      }
+      if (e.type == DioExceptionType.connectionError || e.type == DioExceptionType.connectionTimeout || e.type == DioExceptionType.unknown) {
+        throw Exception('No internet connection');
+      }
+      throw Exception('Login failed: ${e.message}');
     } catch (e) {
-      print('Login error: $e');
-      return null;
+      throw Exception('Invalid Username or Password');
     }
   }
 
@@ -137,10 +147,14 @@ class AuthRepository {
           return await getProfile(token);
         }
       }
-      return null;
+      throw Exception('Invalid response from server');
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionError || e.type == DioExceptionType.connectionTimeout || e.type == DioExceptionType.unknown) {
+        throw Exception('No internet connection');
+      }
+      throw Exception('Google login failed: ${e.message}');
     } catch (e) {
-      print('Google sign in error: $e');
-      return null;
+      throw Exception('Google sign in canceled or failed');
     }
   }
 

@@ -44,7 +44,7 @@ class _NewPasswordScreenState extends ConsumerState<NewPasswordScreen> {
 
     if (mounted) {
       if (error == null) {
-        CustomToast.showSuccess(context, 'Success');
+        CustomToast.showSuccess(context, 'Password updated successfully!');
         context.go('/auth');
       } else {
         CustomToast.showError(context, error);

@@ -32,22 +32,26 @@ class AuthNotifier extends Notifier<UserEntity?> {
     }
   }
 
-  Future<bool> login(String email, String password) async {
+  Future<String?> login(String email, String password) async {
     final repo = ref.read(authRepositoryProvider);
-    final user = await repo.login(email, password);
-    if (user != null) {
-      state = user;
-      await DatabaseHelper.instance.saveUser({
-        'id': user.id,
-        'email': '',
-        'name': user.name,
-        'phone': user.phoneNumber,
-        'role': user.role.name,
-        'created_at': DateTime.now().toIso8601String(),
-      });
-      return true;
+    try {
+      final user = await repo.login(email, password);
+      if (user != null) {
+        state = user;
+        await DatabaseHelper.instance.saveUser({
+          'id': user.id,
+          'email': '',
+          'name': user.name,
+          'phone': user.phoneNumber,
+          'role': user.role.name,
+          'created_at': DateTime.now().toIso8601String(),
+        });
+        return null; // success
+      }
+      return 'Invalid credentials';
+    } catch (e) {
+      return e.toString().replaceAll('Exception: ', '');
     }
-    return false;
   }
 
   Future<String?> register(String email, String password, String name, String phone) async {
@@ -74,22 +78,26 @@ class AuthNotifier extends Notifier<UserEntity?> {
     });
   }
 
-  Future<bool> googleSignIn() async {
+  Future<String?> googleSignIn() async {
     final repo = ref.read(authRepositoryProvider);
-    final user = await repo.nativeGoogleSignIn();
-    if (user != null) {
-      state = user;
-      await DatabaseHelper.instance.saveUser({
-        'id': user.id,
-        'email': '',
-        'name': user.name,
-        'phone': user.phoneNumber,
-        'role': user.role.name,
-        'created_at': DateTime.now().toIso8601String(),
-      });
-      return true;
+    try {
+      final user = await repo.nativeGoogleSignIn();
+      if (user != null) {
+        state = user;
+        await DatabaseHelper.instance.saveUser({
+          'id': user.id,
+          'email': '',
+          'name': user.name,
+          'phone': user.phoneNumber,
+          'role': user.role.name,
+          'created_at': DateTime.now().toIso8601String(),
+        });
+        return null; // success
+      }
+      return 'Google sign in failed';
+    } catch (e) {
+      return e.toString().replaceAll('Exception: ', '');
     }
-    return false;
   }
 
   Future<String?> resetPassword(String email) async {

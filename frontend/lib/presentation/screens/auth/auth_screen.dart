@@ -49,13 +49,13 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
 
   void _login() async {
     setState(() => _isLoading = true);
-    final success = await ref.read(authProvider.notifier).login(
+    final errorMsg = await ref.read(authProvider.notifier).login(
       _emailController.text.trim(),
       _passwordController.text.trim(),
     );
     setState(() => _isLoading = false);
 
-    if (success && mounted) {
+    if (errorMsg == null && mounted) {
       final user = ref.read(authProvider);
       if (user?.role == UserRole.staff) {
         context.go('/staff');
@@ -63,7 +63,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
         context.go('/patient');
       }
     } else if (mounted) {
-      CustomToast.showSuccess(context, 'Success');
+      CustomToast.showError(context, errorMsg ?? 'Login failed');
     }
   }
 
@@ -78,7 +78,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     setState(() => _isLoading = false);
     
     if (errorMsg == null && mounted) {
-      CustomToast.showSuccess(context, 'Success');
+      CustomToast.showSuccess(context, 'Account created successfully!');
       setState(() => _isLogin = true);
     } else if (mounted) {
       CustomToast.showError(context, errorMsg ?? 'Signup failed');
@@ -89,10 +89,10 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     HapticFeedback.lightImpact();
     setState(() => _isLoading = true);
     
-    final success = await ref.read(authProvider.notifier).googleSignIn();
+    final errorMsg = await ref.read(authProvider.notifier).googleSignIn();
     setState(() => _isLoading = false);
     
-    if (success && mounted) {
+    if (errorMsg == null && mounted) {
       final user = ref.read(authProvider);
       if (user?.role == UserRole.staff) {
         context.go('/staff');
@@ -100,7 +100,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
         context.go('/patient');
       }
     } else if (mounted) {
-      CustomToast.showSuccess(context, 'Success');
+      CustomToast.showError(context, errorMsg ?? 'Google Sign In failed');
     }
   }
 
@@ -138,7 +138,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                 
                 if (mounted) {
                   if (error == null) {
-                    CustomToast.showSuccess(context, 'Success');
+                    CustomToast.showSuccess(context, 'Password reset link sent to your email');
                   } else {
                     CustomToast.showError(context, error);
                   }
