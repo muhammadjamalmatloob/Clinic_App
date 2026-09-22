@@ -97,8 +97,41 @@ async def current_user(
 
 @router.post("/auth/google", tags=["auth"])
 async def google_login(payload: GoogleLoginRequest) -> dict:
-    return await _supabase_request("token?grant_type=id_token", {"id_token": payload.id_token})
+    return await _supabase_request(
+        "token?grant_type=id_token", 
+        {"id_token": payload.id_token, "provider": payload.provider}
+    )
 
+@router.post("/auth/reset-password", tags=["auth"])
+async def reset_password(payload: ResetPasswordRequest) -> dict:
+    return await _supabase_request(
+        "recover", 
+        {"email": payload.email}
+    )
+
+@router.post("/auth/update-password", tags=["auth"])
+async def update_password(
+    payload: UpdatePasswordRequest,
+    credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
+) -> dict:
+    if credentials is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Bearer token required")
+    # To update password, we call the user endpoint with PUT and the new password
+    headers = {
+        "apikey": settings.supabase_anon_key,
+        "Authorization": f"Bearer {credentials.credentials}",
+        "Content-Type": "application/json"
+    }
+    async with httpx.AsyncClient(timeout=15) as client:
+        response = await client.put(
+            _auth_url("user"), 
+            json={"password": payload.new_password}, 
+            headers=headers
+        )
+    if response.is_error:
+        detail = response.json().get("msg") or "Password update failed"
+        raise HTTPException(status_code=response.status_code, detail=detail)
+    return response.json()
 
 @router.post("/auth/logout", status_code=status.HTTP_204_NO_CONTENT, tags=["auth"])
 async def logout(
