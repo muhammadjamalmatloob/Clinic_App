@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/network/api_client.dart';
 import '../../domain/entities/user_entity.dart';
@@ -102,6 +103,75 @@ class AuthRepository {
     } catch (e) {
       print('Update profile error: $e');
       return null;
+    }
+  }
+
+  Future<UserEntity?> nativeGoogleSignIn() async {
+    try {
+      // Web Client ID from Google Cloud Console
+      final GoogleSignIn googleSignIn = GoogleSignIn(
+        serverClientId: '77060615579-smoqj80q0hm9pj38s7fagmu4op2fle6l.apps.googleusercontent.com',
+      );
+      
+      // Trigger native sign in flow
+      final googleUser = await googleSignIn.signIn();
+      if (googleUser == null) return null; // User canceled the sign-in flow
+      
+      final googleAuth = await googleUser.authentication;
+      if (googleAuth.idToken == null) return null;
+
+      // Send the idToken to our FastAPI backend
+      final response = await apiClient.dio.post('/auth/google', data: {
+        'id_token': googleAuth.idToken,
+        'provider': 'google',
+      });
+
+      if (response.statusCode == 200) {
+        final token = response.data['access_token'];
+        if (token != null) {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('access_token', token);
+          return await getProfile(token);
+        }
+      }
+      return null;
+    } catch (e) {
+      print('Google sign in error: $e');
+      return null;
+    }
+  }
+
+  Future<String?> resetPasswordForEmail(String email) async {
+    try {
+      final response = await apiClient.dio.post('/auth/reset-password', data: {
+        'email': email,
+      });
+      if (response.statusCode == 200) {
+        return null; // success
+      }
+      return 'Password reset failed';
+    } on DioException catch (e) {
+       return e.response?.data?['detail']?.toString() ?? e.message;
+    } catch (e) {
+      print('Reset password error: $e');
+      return 'An unexpected error occurred.';
+    }
+  }
+
+  Future<String?> updatePassword(String newPassword) async {
+    try {
+      final response = await apiClient.dio.post('/auth/update-password', data: {
+        'new_password': newPassword,
+      });
+      if (response.statusCode == 200) {
+        return null; // success
+      }
+      return 'Password update failed';
+    } on DioException catch (e) {
+       return e.response?.data?['detail']?.toString() ?? e.message;
+    } catch (e) {
+      print('Update password error: $e');
+      return 'An unexpected error occurred.';
     }
   }
 }

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../domain/entities/user_entity.dart';
 import '../providers/auth_provider.dart';
 import '../screens/auth/auth_screen.dart';
+import '../screens/auth/new_password_screen.dart';
 import '../screens/auth/onboarding_screen.dart';
 import '../screens/splash/splash_screen.dart';
 import '../screens/patient/patient_dashboard.dart';
@@ -39,7 +40,7 @@ final routerProvider = Provider<GoRouter>((ref) {
     initialLocation: '/',
     redirect: (context, state) {
       final path = state.uri.toString();
-      final isAuthFlow = path == '/' || path == '/onboarding' || path == '/auth';
+      final isAuthFlow = path == '/' || path == '/onboarding' || path == '/auth' || path == '/new-password';
       
       // If not logged in and not in auth flow, redirect to auth
       if (authState == null && !isAuthFlow) {
@@ -68,6 +69,10 @@ final routerProvider = Provider<GoRouter>((ref) {
     GoRoute(
       path: '/auth',
       builder: (context, state) => const AuthScreen(),
+    ),
+    GoRoute(
+      path: '/new-password',
+      builder: (context, state) => const NewPasswordScreen(),
     ),
     GoRoute(
       path: '/profile',

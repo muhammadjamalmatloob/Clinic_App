@@ -2,12 +2,14 @@ import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiClient {
-  static const String baseUrl = 'http://127.0.0.1:8000/api/v1';
+
+  static const String baseUrl = 'https://clinic-app-39358b701a65.herokuapp.com/api/v1';
+  static const String localUrl = 'http://127.0.0.1:8000/api/v1';
   final Dio dio;
 
   ApiClient()
       : dio = Dio(BaseOptions(
-          baseUrl: baseUrl,
+          baseUrl: localUrl,
           connectTimeout: const Duration(seconds: 15),
           receiveTimeout: const Duration(seconds: 15),
           headers: {
