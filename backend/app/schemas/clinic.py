@@ -80,6 +80,8 @@ class QueueTokenResponse(ORMModel):
     queue_session_id: UUID
     patient_id: UUID | None
     dependent_id: UUID | None
+    patient_name: str | None = None
+    dependent_name: str | None = None
     token_number: int
     status: str
     issued_at: datetime

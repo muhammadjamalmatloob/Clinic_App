@@ -81,7 +81,6 @@ class AuthRepository {
         if (profileResponse.statusCode == 200) {
            return UserEntity.fromJson(profileResponse.data);
         }
-        }
       }
       return null;
     } catch (e) {

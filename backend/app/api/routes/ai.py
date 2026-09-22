@@ -3,10 +3,13 @@ from fastapi import APIRouter, HTTPException, status
 from app.schemas.ai import ChatRequest, ChatResponse
 import google.generativeai as genai
 
+from app.core.config import get_settings
+
 router = APIRouter()
+settings = get_settings()
 
 # Initialize Gemini if key is available
-api_key = os.getenv("GEMINI_API_KEY")
+api_key = settings.gemini_api_key
 if api_key:
     genai.configure(api_key=api_key)
 else:
@@ -28,6 +31,7 @@ async def chat_with_ai(request: ChatRequest):
         )
 
     try:
+        # The user requested 'gemini 3.1 flash lite', but since that does not exist in the API yet,
         # The user specifically requested 'gemini 3.1 flash lite'. 
         model_name = "gemini-3.1-flash-lite"
         model = genai.GenerativeModel(

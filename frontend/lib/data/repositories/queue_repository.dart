@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:dio/dio.dart';
 import '../../core/network/api_client.dart';
 import '../../domain/entities/token_entity.dart';
 import '../../domain/repositories/i_queue_repository.dart';
@@ -49,18 +50,24 @@ class QueueRepository implements IQueueRepository {
   }
 
   @override
-  Future<TokenEntity> requestToken(String patientId, String patientName) async {
+  Future<TokenEntity> requestToken(String? patientId, String? dependentId, String patientName) async {
     try {
-      final response = await apiClient.dio.post('/queues/today/tokens', data: {
-        'patient_id': patientId,
-      });
+      final Map<String, dynamic> data = {};
+      if (patientId != null) data['patient_id'] = patientId;
+      if (dependentId != null) data['dependent_id'] = dependentId;
+      
+      final response = await apiClient.dio.post('/queues/today/tokens', data: data);
       if (response.statusCode == 201) {
         return TokenEntity.fromJson(response.data);
       }
       throw Exception('Failed to request token');
+    } on DioException catch (e) {
+      if (e.response != null) {
+        throw Exception('Server error: ${e.response?.statusCode} - ${e.response?.data}');
+      }
+      throw Exception('Network error: ${e.message}');
     } catch (e) {
-      print('Request token error: $e');
-      rethrow;
+      throw Exception('Failed to request token: $e');
     }
   }
 
