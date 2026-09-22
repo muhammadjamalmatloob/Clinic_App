@@ -106,8 +106,11 @@ class _ProfileSettingsScreenState extends ConsumerState<ProfileSettingsScreen> {
       extendBodyBehindAppBar: true,
       backgroundColor: AppColors.background,
       body: PremiumBackground(
-        child: CustomScrollView(
-          slivers: [
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 800),
+            child: CustomScrollView(
+              slivers: [
             SliverToBoxAdapter(
               child: AppHeader(
                 title: t('Profile & Settings'),
@@ -301,6 +304,8 @@ class _ProfileSettingsScreenState extends ConsumerState<ProfileSettingsScreen> {
             ),
           ],
         ),
+      ),
+      ),
       ),
     );
   }

@@ -19,7 +19,7 @@ void main() async {
   
   final hasSeenOnboardingStr = await DatabaseHelper.instance.getAppSetting('has_seen_onboarding');
   final hasSeenOnboarding = hasSeenOnboardingStr == 'true';
-  container.read(onboardingSeenProvider.notifier).state = hasSeenOnboarding;
+  container.read(onboardingSeenProvider.notifier).setSeen(hasSeenOnboarding);
 
   await container.read(authProvider.notifier).loadSession();
 

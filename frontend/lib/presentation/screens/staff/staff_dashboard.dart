@@ -26,8 +26,11 @@ class StaffDashboard extends ConsumerWidget {
       extendBodyBehindAppBar: true,
       backgroundColor: AppColors.background,
       body: PremiumBackground(
-        child: CustomScrollView(
-          slivers: [
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 800),
+            child: CustomScrollView(
+              slivers: [
             SliverToBoxAdapter(
               child: AppHeader(
                 title: 'Control Desk',
@@ -176,8 +179,10 @@ class StaffDashboard extends ConsumerWidget {
       const SliverToBoxAdapter(
         child: SizedBox(height: 120),
       ),
-    ],
-  ),
+          ],
+        ),
+      ),
+      ),
       ),
     );
   }

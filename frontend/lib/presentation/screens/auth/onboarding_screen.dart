@@ -61,9 +61,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           gradient: AppColors.primaryGradient,
         ),
         child: SafeArea(
-          child: Column(
-            children: [
-              Align(
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: Column(
+                children: [
+                  Align(
                 alignment: Alignment.topRight,
                 child: TextButton(
                   onPressed: () => context.go('/auth'),
@@ -136,7 +139,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     onPressed: () async {
                       if (_currentPage == _onboardingData.length - 1) {
                         await DatabaseHelper.instance.setAppSetting('has_seen_onboarding', 'true');
-                        ref.read(onboardingSeenProvider.notifier).state = true;
+                        ref.read(onboardingSeenProvider.notifier).setSeen(true);
                         if (context.mounted) {
                           context.go('/auth');
                         }
@@ -164,6 +167,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               const SizedBox(height: 40),
             ],
           ),
+        ),
+        ),
         ),
       ),
     );

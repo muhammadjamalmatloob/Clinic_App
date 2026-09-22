@@ -29,12 +29,15 @@ class _StaffDeskScreenState extends ConsumerState<StaffDeskScreen> {
       extendBodyBehindAppBar: true,
       backgroundColor: AppColors.background,
       body: PremiumBackground(
-        child: RefreshIndicator(
-          onRefresh: () async {
-            ref.invalidate(appointmentsProvider(dateStr));
-          },
-          child: CustomScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 800),
+            child: RefreshIndicator(
+              onRefresh: () async {
+                ref.invalidate(appointmentsProvider(dateStr));
+              },
+              child: CustomScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
             slivers: [
               const SliverToBoxAdapter(
                 child: AppHeader(
@@ -119,6 +122,8 @@ class _StaffDeskScreenState extends ConsumerState<StaffDeskScreen> {
               ),
             ],
           ),
+        ),
+        ),
         ),
       ),
     );

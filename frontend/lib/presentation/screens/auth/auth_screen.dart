@@ -159,11 +159,13 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
       body: PremiumBackground(
         child: SafeArea(
           child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 500),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   // Logo
                   Center(
@@ -386,12 +388,13 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                   ).animate().fadeIn(delay: 700.ms).slideY(begin: 0.2, end: 0),
                   const SizedBox(height: 40),
                 ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
+              ), // Column
+            ), // SingleChildScrollView
+          ), // ConstrainedBox
+        ), // Center
+      ), // SafeArea
+    ), // PremiumBackground
+    ); // Scaffold
   }
 
   Widget _buildTextField(String label, IconData icon, TextEditingController controller, {bool isPassword = false, TextInputType? keyboardType}) {

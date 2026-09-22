@@ -38,10 +38,13 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
       extendBodyBehindAppBar: true,
       backgroundColor: AppColors.background,
       body: PremiumBackground(
-        child: RefreshIndicator(
-          onRefresh: () async {},
-          child: CustomScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 800),
+            child: RefreshIndicator(
+              onRefresh: () async {},
+              child: CustomScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
             slivers: [
               SliverToBoxAdapter(
                 child: AppHeader(
@@ -408,12 +411,14 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
             ]),
           ),
         ),
-      ],
-    ),
-  ),
-),
-);
-}
+              ],
+            ),
+          ),
+        ),
+        ),
+      ),
+    );
+  }
 
   Future<void> _showRequestTokenDialog(BuildContext context, String userId, String userName, List<DependentEntity> dependents) async {
     String selectedId = userId;

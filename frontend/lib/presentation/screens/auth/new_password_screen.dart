@@ -59,10 +59,12 @@ class _NewPasswordScreenState extends ConsumerState<NewPasswordScreen> {
       body: PremiumBackground(
         child: SafeArea(
           child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 500),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Text(
                     'Create New Password',
@@ -115,12 +117,13 @@ class _NewPasswordScreenState extends ConsumerState<NewPasswordScreen> {
                     ),
                   ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.2, end: 0),
                 ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
+              ), // Column
+            ), // SingleChildScrollView
+          ), // ConstrainedBox
+        ), // Center
+      ), // SafeArea
+    ), // PremiumBackground
+    ); // Scaffold
   }
 
   Widget _buildTextField(String label, IconData icon, TextEditingController controller) {

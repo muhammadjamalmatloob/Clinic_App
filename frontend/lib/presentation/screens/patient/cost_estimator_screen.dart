@@ -36,12 +36,15 @@ class _CostEstimatorScreenState extends ConsumerState<CostEstimatorScreen> {
               ),
             ),
             Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16.0),
-                child: GlassCard(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 800),
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(16.0),
+                    child: GlassCard(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       const Text(
                         'Get a transparent estimate for your procedures.',
@@ -111,6 +114,8 @@ class _CostEstimatorScreenState extends ConsumerState<CostEstimatorScreen> {
                     ],
                   ),
                 ),
+              ),
+              ),
               ),
             ),
           ],

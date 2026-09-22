@@ -24,12 +24,15 @@ class PatientServicesScreen extends ConsumerWidget {
               title: 'Services & Booking',
             ),
             Expanded(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 800),
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
               // Header
               Text(
                 "We're Providing\nBest Services",
@@ -117,15 +120,17 @@ class PatientServicesScreen extends ConsumerWidget {
                   );
                 },
               ),
-            ],
-          ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
-    ],
-  ),
-),
-);
-}
+    );
+  }
 
   Widget _buildServiceCard(BuildContext context, String title, String subtitle, IconData iconData, Color bgColor, Color iconColor) {
     return GlassCard(

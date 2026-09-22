@@ -33,7 +33,13 @@ final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(de
 final GlobalKey<NavigatorState> _patientShellNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'patientShell');
 final GlobalKey<NavigatorState> _staffShellNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'staffShell');
 
-final onboardingSeenProvider = StateProvider<bool>((ref) => false);
+class OnboardingSeenNotifier extends Notifier<bool> {
+  @override
+  bool build() => false;
+  void setSeen(bool val) => state = val;
+}
+
+final onboardingSeenProvider = NotifierProvider<OnboardingSeenNotifier, bool>(OnboardingSeenNotifier.new);
 
 final routerProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authProvider);

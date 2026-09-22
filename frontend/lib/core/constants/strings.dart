@@ -1,5 +1,5 @@
 class AppStrings {
-  static const String appName = 'Rukhsana Gynae Clinic';
+  static const String appName = 'RG Clinic';
   static const String welcomeMessage = 'Welcome to Smart Token System';
   static const String loginTitle = 'Enter your Phone Number';
   static const String patientDashboard = 'Patient Dashboard';

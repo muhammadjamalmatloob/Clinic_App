@@ -22,11 +22,9 @@ class AuthNotifier extends Notifier<UserEntity?> {
       if (dbUser != null) {
         state = UserEntity(
           id: dbUser['id'],
-          email: dbUser['email'],
           name: dbUser['name'],
-          phone: dbUser['phone'],
+          phoneNumber: dbUser['phone'],
           role: dbUser['role'] == 'staff' ? UserRole.staff : UserRole.patient,
-          createdAt: DateTime.parse(dbUser['created_at']),
         );
       }
     } catch (e) {
@@ -41,11 +39,11 @@ class AuthNotifier extends Notifier<UserEntity?> {
       state = user;
       await DatabaseHelper.instance.saveUser({
         'id': user.id,
-        'email': user.email,
+        'email': '',
         'name': user.name,
-        'phone': user.phone,
+        'phone': user.phoneNumber,
         'role': user.role.name,
-        'created_at': user.createdAt.toIso8601String(),
+        'created_at': DateTime.now().toIso8601String(),
       });
       return true;
     }
@@ -68,11 +66,11 @@ class AuthNotifier extends Notifier<UserEntity?> {
     state = updatedUser;
     DatabaseHelper.instance.saveUser({
       'id': updatedUser.id,
-      'email': updatedUser.email,
+      'email': '',
       'name': updatedUser.name,
-      'phone': updatedUser.phone,
+      'phone': updatedUser.phoneNumber,
       'role': updatedUser.role.name,
-      'created_at': updatedUser.createdAt.toIso8601String(),
+      'created_at': DateTime.now().toIso8601String(),
     });
   }
 
@@ -83,11 +81,11 @@ class AuthNotifier extends Notifier<UserEntity?> {
       state = user;
       await DatabaseHelper.instance.saveUser({
         'id': user.id,
-        'email': user.email,
+        'email': '',
         'name': user.name,
-        'phone': user.phone,
+        'phone': user.phoneNumber,
         'role': user.role.name,
-        'created_at': user.createdAt.toIso8601String(),
+        'created_at': DateTime.now().toIso8601String(),
       });
       return true;
     }

@@ -87,8 +87,11 @@ class _AiSymptomCheckerScreenState extends ConsumerState<AiSymptomCheckerScreen>
       extendBodyBehindAppBar: true,
       backgroundColor: AppColors.background,
       body: PremiumBackground(
-        child: Column(
-          children: [
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 800),
+            child: Column(
+              children: [
             const AppHeader(
               title: 'AI Symptom Checker',
             ),
@@ -184,6 +187,8 @@ class _AiSymptomCheckerScreenState extends ConsumerState<AiSymptomCheckerScreen>
               ),
             ],
           ),
+        ),
+        ),
         ),
       );
   }

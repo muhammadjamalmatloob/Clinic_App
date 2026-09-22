@@ -36,12 +36,15 @@ class _PatientVaultScreenState extends ConsumerState<PatientVaultScreen> {
       extendBodyBehindAppBar: true,
       backgroundColor: AppColors.background,
       body: PremiumBackground(
-        child: RefreshIndicator(
-          onRefresh: () async {
-            ref.invalidate(patientPrescriptionsProvider(user.id));
-            ref.invalidate(patientMedicalRecordsProvider(user.id));
-          },
-          child: CustomScrollView(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 800),
+            child: RefreshIndicator(
+              onRefresh: () async {
+                ref.invalidate(patientPrescriptionsProvider(user.id));
+                ref.invalidate(patientMedicalRecordsProvider(user.id));
+              },
+              child: CustomScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             slivers: [
               SliverToBoxAdapter(
@@ -107,6 +110,8 @@ class _PatientVaultScreenState extends ConsumerState<PatientVaultScreen> {
               ),
             ],
           ),
+        ),
+        ),
         ),
       ),
     );
